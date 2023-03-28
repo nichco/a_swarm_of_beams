@@ -11,8 +11,10 @@ from beamdef import BeamDef
 class BeamRes(csdl.Model):
     def initialize(self):
         self.parameters.declare('options')
+        self.parameters.declare('joints',default={})
     def define(self):
         options = self.parameters['options']
+        joints = self.parameters['joints']
         n = options['n']
         name = options['name']
         free = options['free']
