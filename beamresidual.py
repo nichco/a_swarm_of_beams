@@ -21,6 +21,16 @@ class BeamRes(csdl.Model):
         fixed = options['fixed']
 
 
+        # process the joints dictionary
+        child = []
+        for joint_name in joints:
+            if joints[joint_name]['child_name'] == name: # if the beam has any child nodes
+                child_node = joints[joint_name]['child_node']
+                child.append(child_node) # add the child node to the list
+
+        r_spec = self.declare_variable('r_spec',shape=(3,1),val=0)
+
+
 
 
         # the 12 beam representation variables
@@ -145,7 +155,7 @@ class BeamRes(csdl.Model):
         # force equilibrium residual (ASW p13 eq56)
         force_equilibrium_residual = self.create_output(name+'force_equilibrium_residual', shape=(3,n-1), val=0)
         for i in range(n-1):
-            if i not in fixed: # if the node is not a child node and not a fixed node use: (ASW p13 eq56)
+            if i not in fixed and i not in child: # if the node is not a child node and not a fixed node use: (ASW p13 eq56)
                 delta_F_i = csdl.reshape(delta_F[:,i], new_shape=(3))
                 fa_i = csdl.reshape(fa[:,i], new_shape=(3))
                 delta_s_i = csdl.expand(delta_s[i], (3))
@@ -157,6 +167,11 @@ class BeamRes(csdl.Model):
                 r_i = r[:,i]
                 r_0_i = r_0[:,i]
                 force_equilibrium_residual[:,i] = r_i - r_0_i
+
+            elif i in child: # if the node is a fixed node apply the fixed constraints instead
+                r_i = r[:,i]
+                # r_spec_i = r_spec[:,i]
+                force_equilibrium_residual[:,i] = r_i - r_spec
 
 
 
