@@ -170,8 +170,8 @@ class BeamRes(csdl.Model):
 
             elif i in child: # if the node is a fixed node apply the fixed constraints instead
                 r_i = r[:,i]
-                # r_spec_i = r_spec[:,i]
-                force_equilibrium_residual[:,i] = r_i - r_spec
+                r_0_i = r_0[:,i]
+                force_equilibrium_residual[:,i] = r_i - r_0_i
 
 
 

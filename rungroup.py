@@ -23,6 +23,7 @@ class Run(csdl.Model):
         E_inv = self.create_output('E_inv',shape=(3,3,num_nodes))
         D = self.create_output('D',shape=(3,3,num_nodes))
         oneover = self.create_output('oneover',shape=(3,3,num_nodes))
+        fa = self.create_output('fa',shape=(3,num_nodes))
 
         i = 0
         for beam_name in beams:
@@ -32,6 +33,7 @@ class Run(csdl.Model):
             E_inv[:,:,i:i+n] = self.declare_variable(beam_name+'E_inv',shape=(3,3,n),val=0)
             D[:,:,i:i+n] = self.declare_variable(beam_name+'D',shape=(3,3,n),val=0)
             oneover[:,:,i:i+n] = self.declare_variable(beam_name+'oneover',shape=(3,3,n),val=0)
+            fa[:,i:i+n] = self.declare_variable(beam_name+'fa',shape=(3,n),val=0)
             i += n
 
 
@@ -100,6 +102,11 @@ if __name__ == '__main__':
     r_0 = np.zeros((3,beams['wing']['n']))
     r_0[1,:] = np.array([-3,-2,-1,0,0,1,2,3])
     sim[name+'r_0'] = r_0
+
+
+    fa = np.zeros((3,beams['wing']['n']))
+    fa[2,:] = 50000
+    sim[name+'fa'] = fa
     
     
     name = 'fuse'
@@ -116,6 +123,10 @@ if __name__ == '__main__':
     r_0 = np.zeros((3,beams['fuse']['n']))
     r_0[0,:] = np.array([-2,-1,0,0,1,2,3,4])
     sim[name+'r_0'] = r_0
+
+    fa = np.zeros((3,beams['wing']['n']))
+    fa[2,:] = -50000
+    sim[name+'fa'] = fa
     
 
 
@@ -135,7 +146,7 @@ if __name__ == '__main__':
     
     ax.set_xlabel('x')
     ax.set_ylabel('y')
-    ax.set_xlim(-3,3)
+    ax.set_xlim(-3,4)
     ax.set_ylim(-3,3)
-    ax.set_zlim(-0.5,0.5)
+    ax.set_zlim(-0.05,0.05)
     plt.show()
