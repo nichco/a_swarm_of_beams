@@ -1,6 +1,7 @@
 import csdl
 import python_csdl_backend
 import numpy as np
+from beamresidual import BeamRes
 
 
 class Group(csdl.Model):
@@ -22,7 +23,10 @@ class Group(csdl.Model):
         res = self.create_output('res',shape=(12,cols),val=0)
 
         # partition the state
-        [(self.register_output(beam_name+'x', x[:, i:i + beams[beam_name]['n']]), i := i+beams[beam_name]['n']) for beam_name in beams]
+        i = 0
+        for beam_name in beams:
+            self.register_output(beam_name+'x', x[:, i:i+(n:=beams[beam_name]['n'])])
+            i += n
 
         # partition the joint state
         for i, joint_name in enumerate(joints): self.register_output(joint_name+'x', x[:,num_nodes+i])
@@ -39,14 +43,26 @@ class Group(csdl.Model):
         i = 0
         for beam_name in beams:
             n = beams[beam_name]['n']
-            for var_name, var in vars.items():
-                self.register_output(beam_name + var_name, eval(var_name)[:, i:i+n])
+            self.register_output(beam_name+'r_0', r_0[:,i:i+n])
+            self.register_output(beam_name+'theta_0', theta_0[:,i:i+n])
+            self.register_output(beam_name+'E_inv', E_inv[:,:,i:i+n])
+            self.register_output(beam_name+'D', D[:,:,i:i+n])
+            self.register_output(beam_name+'oneover', oneover[:,:,i:i+n])
             i += n
 
 
         # get the beam residuals
+        i = 0
         for beam_name in beams:
-            
+            self.add(BeamRes(options=beams[beam_name], joints=joints), name=beam_name+'BeamRes')
+            res[:, i:i+n] = self.declare_variable(beam_name+'res', shape=(12,n), val=0) + 0*x[:,i:i+n]
+            i += n
+
+
+        # get the joint residuals
+        for joint_name in joints:
+            pass
+
 
         
 

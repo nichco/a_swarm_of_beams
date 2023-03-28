@@ -23,11 +23,15 @@ class ImplicitOp(csdl.Model):
         )
         solve_res.linear_solver = csdl.ScipyKrylov()
 
-        r_0 = self.declare_variable(name+'r_0',shape=(3,n),val=0)
-        theta_0 = self.declare_variable(name+'theta_0',shape=(3,n),val=0)
-        E_inv = self.declare_variable(name+'E_inv',shape=(3,3,n),val=0)
-        D = self.declare_variable(name+'D',shape=(3,3,n),val=0)
-        oneover = self.declare_variable(name+'oneover',shape=(3,3,n),val=0)
 
 
-        solve_res(r_0, theta_0, E_inv, D, oneover)
+        vars = {'r_0': (3,n),
+                'theta_0': (3,n),
+                'E_inv': (3,3,n),
+                'D': (3,3,n),
+                'oneover': (3,3,n)}
+        
+        var_list = [self.declare_variable(name+var_name, shape=var_shape, val=0) for var_name, var_shape in vars.items()]
+
+
+        solve_res(*var_list)

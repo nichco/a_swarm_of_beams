@@ -2,7 +2,7 @@ import csdl
 import numpy as np
 import python_csdl_backend
 import matplotlib.pyplot as plt
-from implicitop import ImplicitOp
+from groupimplicitop import GroupImplicitOp
 from boxbeamrep import BoxBeamRep
 
 
@@ -14,10 +14,32 @@ class Run(csdl.Model):
     def define(self):
         beams = self.parameters['beams']
 
+        num_nodes = 0
+        for beam_name in beams: num_nodes = num_nodes + beams[beam_name]['n']
+
+        # concatenate variables
+        r_0 = self.create_output('r_0',shape=(3,num_nodes))
+        theta_0 = self.create_output('theta_0',shape=(3,num_nodes))
+        E_inv = self.create_output('E_inv',shape=(3,3,num_nodes))
+        D = self.create_output('D',shape=(3,3,num_nodes))
+        oneover = self.create_output('oneover',shape=(3,3,num_nodes))
+
+        i = 0
+        for beam_name in beams:
+            n = beams[beam_name]['n']
+            r_0[:,i:i+n] = self.declare_variable(beam_name+'r_0',shape=(3,n),val=0)
+            theta_0[:,i:i+n] = self.declare_variable(beam_name+'theta_0',shape=(3,n),val=0)
+            E_inv[:,:,i:i+n] = self.declare_variable(beam_name+'E_inv',shape=(3,3,n),val=0)
+            D[:,:,i:i+n] = self.declare_variable(beam_name+'D',shape=(3,3,n),val=0)
+            oneover[:,:,i:i+n] = self.declare_variable(beam_name+'oneover',shape=(3,3,n),val=0)
+            i += n
+
 
         for beam_name in beams:
             self.add(BoxBeamRep(options=beams[beam_name]), name=beam_name+'BoxBeamRep') # get beam properties
-            self.add(ImplicitOp(options=beams[beam_name]), name=beam_name+'ImplicitOp') # solve the beam
+        
+        
+        self.add(GroupImplicitOp(beams=beams, joints=joints), name='GroupImplicitOp') # solve the beam-joint system
 
 
 if __name__ == '__main__':
@@ -50,6 +72,7 @@ if __name__ == '__main__':
     beams[name]['rho'] = 2700
     beams[name]['dir'] = 1
 
+    """
     # joint
     name = 'wingfuse'
     joints[name] = {}
@@ -58,7 +81,7 @@ if __name__ == '__main__':
     joints[name]['parent_node'] = 3
     joints[name]['child_name'] = 'fuse'
     joints[name]['child_node'] = 2
-
+    """
 
     sim = python_csdl_backend.Simulator(Run(beams=beams))
 
@@ -103,12 +126,11 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 
-    for beam_name in beams:
-        x = sim[beam_name+'x'][0,:]
-        y = sim[beam_name+'x'][1,:]
-        z = sim[beam_name+'x'][2,:]
+    x = sim['x'][0,:]
+    y = sim['x'][1,:]
+    z = sim['x'][2,:]
 
-        ax.scatter(x,y,z)
+    ax.scatter(x,y,z)
 
     
     ax.set_xlabel('x')
