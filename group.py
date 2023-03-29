@@ -57,7 +57,6 @@ class Group(csdl.Model):
         # get the beam residuals
         i = 0
         for beam_name in beams:
-            self.add(PointLoads(options=beams[beam_name], joints=joints), name=beam_name+'PointLoads')
             self.add(BeamRes(options=beams[beam_name], joints=joints), name=beam_name+'BeamRes')
             res[:, i:i+n] = self.declare_variable(beam_name+'res', shape=(12,n), val=0) + 0*x[:,i:i+n]
             i += n

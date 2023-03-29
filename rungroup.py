@@ -55,7 +55,7 @@ if __name__ == '__main__':
     beams[name]['name'] = name
     beams[name]['beam_type'] = 'wing'
     beams[name]['free'] = np.array([0,7])
-    beams[name]['fixed'] = np.array([3])
+    beams[name]['fixed'] = np.array([4])
     beams[name]['E'] = 69E9
     beams[name]['G'] = 1E20
     beams[name]['rho'] = 2700
@@ -112,10 +112,10 @@ if __name__ == '__main__':
     name = 'fuse'
     sim[name+'h'] = 0.25
     sim[name+'w'] = 1
-    sim[name+'t_left'] = 0.05
-    sim[name+'t_top'] = 0.05
-    sim[name+'t_right'] = 0.05
-    sim[name+'t_bot'] = 0.05
+    sim[name+'t_left'] = 0.03
+    sim[name+'t_top'] = 0.03
+    sim[name+'t_right'] = 0.03
+    sim[name+'t_bot'] = 0.03
 
     theta_0 = np.zeros((3,beams['fuse']['n']))
     theta_0[2,:] = np.ones(beams['fuse']['n'])*-np.pi/2

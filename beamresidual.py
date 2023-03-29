@@ -5,6 +5,7 @@ from difvec import DifVec
 from transform import CalcNodalT
 from curvature import CalcNodalK
 from beamdef import BeamDef
+from pointloads import PointLoads
 
 
 
@@ -47,6 +48,7 @@ class BeamRes(csdl.Model):
         # OMEGA = self.declare_variable('OMEGA',shape=(3)) # aircraft rotation
         # THETA = self.declare_variable('THETA',shape=(3)) # aircraft orientation Euler angles
 
+        self.add(PointLoads(options=options, joints=joints), name=name+'PointLoads')
         self.add(BeamDef(options=options), name=name+'BeamDef')
         self.add(CalcNodalK(options=options), name=name+'CalcNodalK')
         self.add(CalcNodalT(options=options), name=name+'CalcNodalT')
