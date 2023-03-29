@@ -37,8 +37,7 @@ class Run(csdl.Model):
             i += n
 
 
-        for beam_name in beams:
-            self.add(BoxBeamRep(options=beams[beam_name]), name=beam_name+'BoxBeamRep') # get beam properties
+        for beam_name in beams: self.add(BoxBeamRep(options=beams[beam_name]), name=beam_name+'BoxBeamRep') # get beam properties
         
         
         self.add(GroupImplicitOp(beams=beams, joints=joints), name='GroupImplicitOp') # solve the beam-joint system
@@ -141,11 +140,17 @@ if __name__ == '__main__':
     x = sim['x'][0,:]
     y = sim['x'][1,:]
     z = sim['x'][2,:]
+    phi = sim['x'][3,:]
+    theta = sim['x'][4,:]
+    psi = sim['x'][5,:]
 
     np.set_printoptions(linewidth=200)
     print('x: ',np.round(x,4))
     print('y: ',np.round(y,4))
     print('z: ',np.round(z,4))
+    print('phi: ',np.round(phi,4))
+    print('theta: ',np.round(theta,4))
+    print('psi: ',np.round(psi,4))
 
     ax.scatter(x,y,z)
 

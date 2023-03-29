@@ -3,7 +3,6 @@ import python_csdl_backend
 import numpy as np
 from beamresidual import BeamRes
 from jointresidual import JointRes
-from pointloads import PointLoads
 
 
 class Group(csdl.Model):
