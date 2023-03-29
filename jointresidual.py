@@ -40,6 +40,9 @@ class JointRes(csdl.Model):
 
         child_delta_F = self.declare_variable(child_name+'delta_F',shape=(3,num_child_nodes-1),val=0)
         child_delta_M = self.declare_variable(child_name+'delta_M',shape=(3,num_child_nodes-1),val=0)
+
+        child_delta_FP = self.declare_variable(child_name+'delta_FP',shape=(3,num_child_nodes-1),val=0)
+        child_delta_MP = self.declare_variable(child_name+'delta_MP',shape=(3,num_child_nodes-1),val=0)
         
 
 
@@ -54,6 +57,8 @@ class JointRes(csdl.Model):
         T2_0 = csdl.reshape(T_child_0[:,:,child_node], new_shape=(3,3))
         dF2 = child_delta_F[:,child_node]
         dM2 = child_delta_M[:,child_node]
+        delta_FP_2 = child_delta_FP[:,child_node]
+        delta_MP_2 = child_delta_MP[:,child_node]
 
 
         # compute the beam distance residual
@@ -62,11 +67,11 @@ class JointRes(csdl.Model):
         res[0:3,0] = r2 - r1 - csdl.expand(term0, (3,1), 'i->ij')
 
         # compute the beam orientation residual
-        term1 = csdl.matmat(csdl.transpose(T1), T1_0)
-        term2 = csdl.matmat(csdl.transpose(T2), T2_0)
-        row3 = csdl.dot(term1[:, 1], term2[:, 2], axis=0) - csdl.dot(term1[:, 2], term2[:, 1], axis=0)
-        row4 = csdl.dot(term1[:, 2], term2[:, 0], axis=0) - csdl.dot(term1[:, 0], term2[:, 2], axis=0)
-        row5 = csdl.dot(term1[:, 0], term2[:, 1], axis=0) - csdl.dot(term1[:, 1], term2[:, 0], axis=0)
+        #term1 = csdl.matmat(csdl.transpose(T1), T1_0)
+        #term2 = csdl.matmat(csdl.transpose(T2), T2_0)
+        #row3 = csdl.dot(term1[:, 1], term2[:, 2], axis=0) - csdl.dot(term1[:, 2], term2[:, 1], axis=0)
+        #row4 = csdl.dot(term1[:, 2], term2[:, 0], axis=0) - csdl.dot(term1[:, 0], term2[:, 2], axis=0)
+        #row5 = csdl.dot(term1[:, 0], term2[:, 1], axis=0) - csdl.dot(term1[:, 1], term2[:, 0], axis=0)
 
         #res[3,0] = csdl.expand(row3, (1,1), 'i->ij')
         #res[4,0] = csdl.expand(row4, (1,1), 'i->ij')
@@ -79,10 +84,39 @@ class JointRes(csdl.Model):
 
 
         # compute the force balance residual
-        force_residual = dF2 - F_j
+        force_residual = dF2 + delta_FP_2 - F_j
         res[6:9,0] = force_residual
 
 
         # compute the moment balance residual
-        moment_residual = dM2 - M_j + csdl.cross((r2 - r1), F_j, axis=0)
+        moment_residual = dM2 + delta_MP_2 - M_j + csdl.cross((r2 - r1), F_j, axis=0)
         res[9:12,0] = moment_residual
+
+
+
+
+
+
+
+
+        A = csdl.transpose(csdl.matmat(csdl.transpose(T1), T1_0))
+        B = csdl.transpose(csdl.matmat(csdl.transpose(T2), T2_0))
+
+
+        a1 = A[0,:]
+        b1 = A[1,:]
+        c1 = A[2,:]
+
+        a2 = B[0,:]
+        b2 = B[1,:]
+        c2 = B[2,:]
+
+        row1 = csdl.dot(b1,c2,axis=1) - csdl.dot(c1,b2,axis=1)
+        row2 = csdl.dot(c1,a2,axis=1) - csdl.dot(a1,c2,axis=1)
+        row3 = csdl.dot(a1,b2,axis=1) - csdl.dot(b1,a2,axis=1)
+
+        self.print_var(B)
+
+        #res[3,0] = csdl.expand(row1, (1,1), 'i->ij')
+        #res[4,0] = csdl.expand(row2, (1,1), 'i->ij')
+        #res[5,0] = csdl.expand(row3, (1,1), 'i->ij')
