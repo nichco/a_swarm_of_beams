@@ -67,16 +67,6 @@ class JointRes(csdl.Model):
         res[0:3,0] = r2 - r1 - csdl.expand(term0, (3,1), 'i->ij')
 
         # compute the beam orientation residual
-        #term1 = csdl.matmat(csdl.transpose(T1), T1_0)
-        #term2 = csdl.matmat(csdl.transpose(T2), T2_0)
-        #row3 = csdl.dot(term1[:, 1], term2[:, 2], axis=0) - csdl.dot(term1[:, 2], term2[:, 1], axis=0)
-        #row4 = csdl.dot(term1[:, 2], term2[:, 0], axis=0) - csdl.dot(term1[:, 0], term2[:, 2], axis=0)
-        #row5 = csdl.dot(term1[:, 0], term2[:, 1], axis=0) - csdl.dot(term1[:, 1], term2[:, 0], axis=0)
-
-        #res[3,0] = csdl.expand(row3, (1,1), 'i->ij')
-        #res[4,0] = csdl.expand(row4, (1,1), 'i->ij')
-        #res[5,0] = csdl.expand(row5, (1,1), 'i->ij')
-
         child_theta = child_x[3:6,child_node]
         child_theta_0_i = child_theta_0[:,child_node]
         
