@@ -104,7 +104,7 @@ class BoxBeamRep(csdl.Model):
         J = 2 * (((h - t_top / 2 - t_bot / 2) * (w - t_right / 2 - t_left / 2)) ** 2) / \
                 (((w - t_right / 2 - t_left / 2) / (0.5 * t_top + 0.5 * t_bot)) +
                 ((h - t_top / 2 - t_bot / 2) / (0.5 * t_right + 0.5 * t_left)))
-
+        self.print_var(J)
         EIxx = E * Ixx
         EIzz = E * Izz
         EIxz = E * Ixz
@@ -160,8 +160,8 @@ class BoxBeamRep(csdl.Model):
             D[1,0,i] = csdl.expand(n_ta[0], (1,1,1))
             D[1,2,i] = csdl.expand(-c_ta[0], (1,1,1))
             D[2,1,i] = csdl.expand(c_ea[0], (1,1,1))
+
         # endregion
-        
         
 
 
@@ -182,4 +182,4 @@ if __name__ == '__main__':
     sim = python_csdl_backend.Simulator(BoxBeamRep(options=options))
     sim.run()
 
-    print(sim[options['name']+'D'])
+    print(sim[options['name']+'E_inv'])

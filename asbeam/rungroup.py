@@ -4,6 +4,7 @@ import python_csdl_backend
 import matplotlib.pyplot as plt
 from groupimplicitop import GroupImplicitOp
 from boxbeamrep import BoxBeamRep
+from tubebeamrep import TubeBeamRep
 
 
 
@@ -37,7 +38,11 @@ class Run(csdl.Model):
             i += n
 
 
-        for beam_name in beams: self.add(BoxBeamRep(options=beams[beam_name]), name=beam_name+'BoxBeamRep') # get beam properties
+        for beam_name in beams:
+            if beams[beam_name]['shape'] == 'box':
+                self.add(BoxBeamRep(options=beams[beam_name]), name=beam_name+'BoxBeamRep') # get beam properties for box beams
+            elif beams[beam_name]['shape'] == 'tube':
+                self.add(TubeBeamRep(options=beams[beam_name]), name=beam_name+'TubeBeamRep') # get beam properties tubular beams
         
         
         self.add(GroupImplicitOp(beams=beams, joints=joints), name='GroupImplicitOp') # solve the beam-joint system
@@ -58,7 +63,7 @@ if __name__ == '__main__':
     beams[name]['E'] = 69E9
     beams[name]['G'] = 1E20
     beams[name]['rho'] = 2700
-    beams[name]['dir'] = 1
+    beams[name]['shape'] = 'box'
     
     # fuselage beam
     name = 'fuse'
@@ -71,7 +76,7 @@ if __name__ == '__main__':
     beams[name]['E'] = 69E9
     beams[name]['G'] = 1E20
     beams[name]['rho'] = 2700
-    beams[name]['dir'] = 1
+    beams[name]['shape'] = 'tube'
 
     
     # joint
@@ -104,17 +109,19 @@ if __name__ == '__main__':
 
 
     fa = np.zeros((3,beams['wing']['n']))
-    fa[2,:] = 50000
+    fa[2,:] = 0
     sim[name+'fa'] = fa
     
     
     name = 'fuse'
-    sim[name+'h'] = 0.25
-    sim[name+'w'] = 1
-    sim[name+'t_left'] = 0.03
-    sim[name+'t_top'] = 0.03
-    sim[name+'t_right'] = 0.03
-    sim[name+'t_bot'] = 0.03
+    #sim[name+'h'] = 0.25
+    #sim[name+'w'] = 1
+    #sim[name+'t_left'] = 0.03
+    #sim[name+'t_top'] = 0.03
+    #sim[name+'t_right'] = 0.03
+    #sim[name+'t_bot'] = 0.03
+    sim[name+'OD'] = 0.5
+    sim[name+'t'] = 0.03
 
     theta_0 = np.zeros((3,beams['fuse']['n']))
     theta_0[2,:] = np.ones(beams['fuse']['n'])*-np.pi/2
@@ -125,7 +132,7 @@ if __name__ == '__main__':
     sim[name+'r_0'] = r_0
 
     fa = np.zeros((3,beams['wing']['n']))
-    fa[2,:] = -100000
+    fa[2,:] = 100000
     sim[name+'fa'] = fa
     
 
