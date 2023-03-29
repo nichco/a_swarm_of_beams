@@ -142,6 +142,11 @@ if __name__ == '__main__':
     y = sim['x'][1,:]
     z = sim['x'][2,:]
 
+    np.set_printoptions(linewidth=200)
+    print('x: ',np.round(x,4))
+    print('y: ',np.round(y,4))
+    print('z: ',np.round(z,4))
+
     ax.scatter(x,y,z)
 
     
