@@ -80,7 +80,7 @@ if __name__ == '__main__':
     joints[name] = {}
     joints[name]['name'] = name
     joints[name]['parent_name'] = 'wing'
-    joints[name]['parent_node'] = 3
+    joints[name]['parent_node'] = 2
     joints[name]['child_name'] = 'fuse'
     joints[name]['child_node'] = 2
     
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     theta_0 = np.zeros((3,beams['wing']['n']))
     sim[name+'theta_0'] = theta_0
     r_0 = np.zeros((3,beams['wing']['n']))
-    r_0[1,:] = np.array([-3,-2,-1,0,0,1,2,3])
+    r_0[1,:] = np.array([-3,-2,-1,-1,0,1,2,3])
     sim[name+'r_0'] = r_0
 
 
@@ -121,11 +121,12 @@ if __name__ == '__main__':
     theta_0[2,:] = np.ones(beams['fuse']['n'])*-np.pi/2
     sim[name+'theta_0'] = theta_0
     r_0 = np.zeros((3,beams['fuse']['n']))
-    r_0[0,:] = np.array([-2,-1,0,0,1,2,3,4])
+    r_0[0,:] = np.array([-2,-1,0,0,1,2,3,4]) # x coord
+    r_0[1,:] = np.array([-1,-1,-1,-1,-1,-1,-1,-1]) # y coord
     sim[name+'r_0'] = r_0
 
     fa = np.zeros((3,beams['wing']['n']))
-    fa[2,:] = -10000
+    fa[2,:] = -50000
     sim[name+'fa'] = fa
     
 
@@ -148,5 +149,5 @@ if __name__ == '__main__':
     ax.set_ylabel('y')
     ax.set_xlim(-3,4)
     ax.set_ylim(-3,3)
-    ax.set_zlim(-0.5,0.5)
+    ax.set_zlim(-0.05,0.05)
     plt.show()
