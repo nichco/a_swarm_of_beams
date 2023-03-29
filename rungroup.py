@@ -68,13 +68,13 @@ if __name__ == '__main__':
     beams[name]['name'] = name
     beams[name]['beam_type'] = 'fuse'
     beams[name]['free'] = np.array([0,7])
-    beams[name]['fixed'] = np.array([2])
+    beams[name]['fixed'] = np.array([])
     beams[name]['E'] = 69E9
     beams[name]['G'] = 1E20
     beams[name]['rho'] = 2700
     beams[name]['dir'] = 1
 
-    """
+    
     # joint
     name = 'wingfuse'
     joints[name] = {}
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     joints[name]['parent_node'] = 3
     joints[name]['child_name'] = 'fuse'
     joints[name]['child_node'] = 2
-    """
+    
 
     sim = python_csdl_backend.Simulator(Run(beams=beams))
 
@@ -125,7 +125,7 @@ if __name__ == '__main__':
     sim[name+'r_0'] = r_0
 
     fa = np.zeros((3,beams['wing']['n']))
-    fa[2,:] = -50000
+    fa[2,:] = -10000
     sim[name+'fa'] = fa
     
 
@@ -148,5 +148,5 @@ if __name__ == '__main__':
     ax.set_ylabel('y')
     ax.set_xlim(-3,4)
     ax.set_ylim(-3,3)
-    ax.set_zlim(-0.05,0.05)
+    ax.set_zlim(-0.5,0.5)
     plt.show()

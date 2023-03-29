@@ -22,13 +22,15 @@ class BeamRes(csdl.Model):
 
 
         # process the joints dictionary
-        child = []
+        child, r_j_list, theta_j_list = [], [], []
         for joint_name in joints:
+            jx = self.declare_variable(joint_name+'x',shape=(12,1),val=0)
+            r_ji, theta_ji = jx[0:3,0], jx[3:6,0]
             if joints[joint_name]['child_name'] == name: # if the beam has any child nodes
-                child_node = joints[joint_name]['child_node']
-                child.append(child_node) # add the child node to the list
+                child.append(joints[joint_name]['child_node']) # add the child node to the list
+                r_j_list.append(r_ji)
+                theta_j_list.append(theta_ji)
 
-        r_spec = self.declare_variable('r_spec',shape=(3,1),val=0)
 
 
 
@@ -169,9 +171,10 @@ class BeamRes(csdl.Model):
                 force_equilibrium_residual[:,i] = r_i - r_0_i
 
             elif i in child: # if the node is a fixed node apply the fixed constraints instead
+                r_j = next((r for c, r in zip(child, r_j_list) if c == i), None)
                 r_i = r[:,i]
                 r_0_i = r_0[:,i]
-                force_equilibrium_residual[:,i] = r_i - r_0_i
+                force_equilibrium_residual[:,i] = r_i - r_0_i - r_j
 
 
 
@@ -182,7 +185,7 @@ class BeamRes(csdl.Model):
         # moment equilibrium residual (ASW p13 eq55)
         moment_equilibrium_residual = self.create_output(name+'moment_equilibrium_residual', shape=(3,n-1), val=0)
         for i in range(n-1):
-            if i not in fixed:
+            if i not in fixed and i not in child:
                 delta_M_i = csdl.reshape(delta_M[:,i], new_shape=(3))
                 ma_i = csdl.reshape(ma[:,i], new_shape=(3))
                 delta_s_i = csdl.expand(delta_s[i], (3))
@@ -196,6 +199,13 @@ class BeamRes(csdl.Model):
                 theta_i = theta[:,i]
                 theta_0_i = theta_0[:,i]
                 moment_equilibrium_residual[:,i] = theta_i - theta_0_i
+
+            elif i in child:
+                theta_j = next((t for c, t in zip(child, theta_j_list) if c == i), None)
+                theta_i = theta[:,i]
+                theta_0_i = theta_0[:,i]
+                moment_equilibrium_residual[:,i] = theta_i - theta_0_i - theta_j
+
 
         # endregion
 

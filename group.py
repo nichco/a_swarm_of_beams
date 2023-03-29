@@ -2,6 +2,7 @@ import csdl
 import python_csdl_backend
 import numpy as np
 from beamresidual import BeamRes
+from jointresidual import JointRes
 
 
 class Group(csdl.Model):
@@ -13,7 +14,7 @@ class Group(csdl.Model):
         joints = self.parameters['joints']
 
         num_nodes = sum(beams[beam_name]['n'] for beam_name in beams)
-        cols = num_nodes+len(joints)
+        cols = num_nodes + len(joints)
 
         # declare the state
         x = self.declare_variable('x',shape=(12,cols),val=0)
@@ -61,8 +62,11 @@ class Group(csdl.Model):
 
 
         # get the joint residuals
-        for joint_name in joints:
-            pass
+        for i, joint_name in enumerate(joints):
+            self.add(JointRes(beams=beams, joint=joints[joint_name]), name=joint_name+'JointRes')
+            res[:, num_nodes+i] = csdl.expand(self.declare_variable(joint_name+'res', shape=(12)), (12,1), 'i->ij')
+
+
 
 
         
