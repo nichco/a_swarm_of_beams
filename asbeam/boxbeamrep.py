@@ -104,7 +104,6 @@ class BoxBeamRep(csdl.Model):
         J = 2 * (((h - t_top / 2 - t_bot / 2) * (w - t_right / 2 - t_left / 2)) ** 2) / \
                 (((w - t_right / 2 - t_left / 2) / (0.5 * t_top + 0.5 * t_bot)) +
                 ((h - t_top / 2 - t_bot / 2) / (0.5 * t_right + 0.5 * t_left)))
-        self.print_var(J)
         EIxx = E * Ixx
         EIzz = E * Izz
         EIxz = E * Ixz
