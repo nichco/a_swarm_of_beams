@@ -33,8 +33,6 @@ class BeamRes(csdl.Model):
 
 
 
-
-
         # the 12 beam representation variables
         x = self.declare_variable(name+'x',shape=(12,n))
         r = x[0:3,:]

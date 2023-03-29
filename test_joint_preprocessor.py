@@ -2,10 +2,15 @@ import numpy as np
 
 
 
-def test():
+def test(beams, joints):
 
 
-    name = 'fuse'
+    name = 'wing'
+
+    parent_dict = {joints[joint_name]['parent_node']: joint_name for joint_name in joints if joints[joint_name]['parent_name'] == name}
+    parent = list(parent_dict.keys())
+
+    print(parent_dict)
 
 
     child, rj = [], []
@@ -22,7 +27,7 @@ def test():
             for c, r in zip(child, rj):
                 if c == i: r_j = r
             
-            print(r_j)
+            #print(r_j)
 
     return child
 
@@ -66,6 +71,14 @@ joints[name]['parent_node'] = 3
 joints[name]['child_name'] = 'fuse'
 joints[name]['child_node'] = 2
 
+name = 'wingfuse2'
+joints[name] = {}
+joints[name]['name'] = name
+joints[name]['parent_name'] = 'wing'
+joints[name]['parent_node'] = 5
+joints[name]['child_name'] = 'fuse'
+joints[name]['child_node'] = 3
 
-child = test()
-print(child)
+
+child = test(beams, joints)
+#print(child)

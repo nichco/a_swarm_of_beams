@@ -92,10 +92,10 @@ if __name__ == '__main__':
     name = 'wing'
     sim[name+'h'] = 0.25
     sim[name+'w'] = 1
-    sim[name+'t_left'] = 0.05
-    sim[name+'t_top'] = 0.05
-    sim[name+'t_right'] = 0.05
-    sim[name+'t_bot'] = 0.05
+    sim[name+'t_left'] = 0.03
+    sim[name+'t_top'] = 0.03
+    sim[name+'t_right'] = 0.03
+    sim[name+'t_bot'] = 0.03
 
     theta_0 = np.zeros((3,beams['wing']['n']))
     sim[name+'theta_0'] = theta_0
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     sim[name+'r_0'] = r_0
 
     fa = np.zeros((3,beams['wing']['n']))
-    fa[2,:] = -50000
+    fa[2,:] = -100000
     sim[name+'fa'] = fa
     
 
