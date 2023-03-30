@@ -25,11 +25,15 @@ class ImplicitOp(csdl.Model):
 
 
 
-        vars = {'r_0': (3,n),
-                'theta_0': (3,n),
-                'E_inv': (3,3,n),
+        vars = {'r_0': (3,n), # original nodal coordinates
+                'theta_0': (3,n), # initial beam orientation
+                'E_inv': (3,3,n), # inverse stiffness matrix
                 'D': (3,3,n),
-                'oneover': (3,3,n)}
+                'oneover': (3,3,n),
+                'f': (3,n), # distributed loads
+                'm': (3,n), # distributed moments
+                'fp': (3,n), # point loads
+                'mp': (3,n)} # point moments
         
         var_list = [self.declare_variable(name+var_name, shape=var_shape, val=0) for var_name, var_shape in vars.items()]
 

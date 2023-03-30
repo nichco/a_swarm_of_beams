@@ -24,7 +24,7 @@ class Run(csdl.Model):
         E_inv = self.create_output('E_inv',shape=(3,3,num_nodes))
         D = self.create_output('D',shape=(3,3,num_nodes))
         oneover = self.create_output('oneover',shape=(3,3,num_nodes))
-        fa = self.create_output('fa',shape=(3,num_nodes))
+        f = self.create_output('f',shape=(3,num_nodes))
 
         i = 0
         for beam_name in beams:
@@ -34,7 +34,7 @@ class Run(csdl.Model):
             E_inv[:,:,i:i+n] = self.declare_variable(beam_name+'E_inv',shape=(3,3,n),val=0)
             D[:,:,i:i+n] = self.declare_variable(beam_name+'D',shape=(3,3,n),val=0)
             oneover[:,:,i:i+n] = self.declare_variable(beam_name+'oneover',shape=(3,3,n),val=0)
-            fa[:,i:i+n] = self.declare_variable(beam_name+'fa',shape=(3,n),val=0)
+            f[:,i:i+n] = self.declare_variable(beam_name+'f',shape=(3,n),val=0)
             i += n
 
 
@@ -108,9 +108,9 @@ if __name__ == '__main__':
     sim[name+'r_0'] = r_0
 
 
-    fa = np.zeros((3,beams['wing']['n']))
-    fa[2,:] = 0
-    sim[name+'fa'] = fa
+    f = np.zeros((3,beams['wing']['n']))
+    f[2,:] = 0
+    sim[name+'f'] = f
     
     
     name = 'fuse'
@@ -131,9 +131,9 @@ if __name__ == '__main__':
     r_0[1,:] = np.array([-1,-1,-1,-1,-1,-1,-1,-1]) # y coord
     sim[name+'r_0'] = r_0
 
-    fa = np.zeros((3,beams['wing']['n']))
-    fa[2,:] = 100000
-    sim[name+'fa'] = fa
+    f = np.zeros((3,beams['wing']['n']))
+    f[2,:] = -100000
+    sim[name+'f'] = f
     
 
 

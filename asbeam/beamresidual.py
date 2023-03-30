@@ -4,7 +4,6 @@ import numpy as np
 from transform import CalcNodalT
 from curvature import CalcNodalK
 from beamdef import BeamDef
-from pointloads import PointLoads
 
 
 
@@ -31,6 +30,9 @@ class BeamRes(csdl.Model):
                 r_j_list.append(r_ji)
                 theta_j_list.append(theta_ji)
 
+        parent_dict = {joints[joint_name]['parent_node']: joint_name for joint_name in joints if joints[joint_name]['parent_name'] == name}
+        parent = list(parent_dict.keys())
+
 
 
         # the 12 beam representation variables
@@ -47,7 +49,6 @@ class BeamRes(csdl.Model):
         # OMEGA = self.declare_variable('OMEGA',shape=(3)) # aircraft rotation
         # THETA = self.declare_variable('THETA',shape=(3)) # aircraft orientation Euler angles
 
-        self.add(PointLoads(options=options, joints=joints), name=name+'PointLoads')
         self.add(BeamDef(options=options), name=name+'BeamDef')
         self.add(CalcNodalK(options=options), name=name+'CalcNodalK')
         self.add(CalcNodalT(options=options), name=name+'CalcNodalT')
@@ -57,16 +58,25 @@ class BeamRes(csdl.Model):
         K_0 = self.declare_variable(name+'K_0',shape=(3,3,n))
         D = self.declare_variable(name+'D',shape=(3,3,n))
         oneover = self.declare_variable(name+'oneover',shape=(3,3,n))
-        fa = self.declare_variable(name+'fa',shape=(3,n-1),val=0) # distributed forces
-        ma = self.declare_variable(name+'ma',shape=(3,n-1),val=0) # distributed moments
+        f = self.declare_variable(name+'f',shape=(3,n),val=0) # distributed forces
+        m = self.declare_variable(name+'m',shape=(3,n),val=0) # distributed moments
         theta_0 = self.declare_variable(name+'theta_0',shape=(3,n),val=0)
         r_0 = self.declare_variable(name+'r_0',shape=(3,n),val=0)
         T = self.declare_variable(name+'T',shape=(3,3,n)) # transformation tensor from xyz to csn
         Ta = self.declare_variable(name+'Ta',shape=(3,3,n-1)) # average transformation tensor from xyz to csn
         Ka = self.declare_variable(name+'Ka',shape=(3,3,n-1)) # curvature/angle-rate relation tensor
+        fp = self.declare_variable(name+'fp',shape=(3,n),val=0)
+        mp = self.declare_variable(name+'mp',shape=(3,n),val=0)
+        delta_s_0 = self.declare_variable(name+'delta_s_0',shape=(n-1),val=0)
+        delta_theta_0 = self.declare_variable(name+'delta_theta_0',shape=(3,n-1),val=0)
+        zero = self.declare_variable('zero',val=0)
 
 
-        # compute the difference vectors
+
+
+
+
+        # compute the difference/average vectors
         delta_r = self.create_output(name+'delta_r',shape=(3,n-1))
         delta_theta = self.create_output(name+'delta_theta',shape=(3,n-1))
         delta_s = self.create_output(name+'delta_s',shape=(n-1))
@@ -74,6 +84,10 @@ class BeamRes(csdl.Model):
         delta_M = self.create_output(name+'delta_M',shape=(3,n-1))
         Fa = self.create_output(name+'Fa',shape=(3,n-1))
         Ma = self.create_output(name+'Ma',shape=(3,n-1))
+        fa = self.create_output(name+'fa',shape=(3,n-1))
+        ma = self.create_output(name+'ma',shape=(3,n-1))
+        delta_fp = self.create_output(name+'delta_fp',shape=(3,n-1),val=0)
+        delta_mp = self.create_output(name+'delta_mp',shape=(3,n-1),val=0)
 
         for i in range(0,n-1):
             delta_r[:, i] = r[:, i + 1] - r[:, i] + 1E-19
@@ -83,24 +97,30 @@ class BeamRes(csdl.Model):
             delta_M[:,i] = M[:,i+1] - M[:,i]
             Fa[:,i] = 0.5*(F[:,i+1] + F[:,i])
             Ma[:,i] = 0.5*(M[:,i+1] + M[:,i])
+            fa[:,i], ma[:,i] = 0.5*(f[:,i+1] + f[:,i]), 0.5*(m[:,i+1] + m[:,i])
+            delta_fp[:,i], delta_mp[:,i] = fp[:,i+1] - fp[:,i], mp[:,i+1] - mp[:,i]
+
+
+
+        # compute the point loads
+        delta_Fj = self.create_output(name+'delta_Fj',shape=(3,n-1),val=0)
+        delta_Mj = self.create_output(name+'delta_Mj',shape=(3,n-1),val=0)
+        delta_FP = self.create_output(name+'delta_FP',shape=(3,n-1),val=0)
+        delta_MP = self.create_output(name+'delta_MP',shape=(3,n-1),val=0)
+        for i in range(n-1):
+            if i in parent:
+                joint_name = parent_dict[i]
+                jx = self.declare_variable(joint_name+'x',shape=(12,1),val=0)
+                Fj, Mj = jx[6:9,0], jx[9:12,0]
+                delta_Fj[:,i], delta_Mj[:,i] = Fj, Mj # (ASW p27 eq143)
+            else: delta_Fj[:,i], delta_Mj[:,i] = [csdl.expand(zero,(3,1),'i->ij')] * 2
+        
+        delta_FP[:,:] = delta_fp + delta_Fj
+        delta_MP[:,:] = delta_mp + delta_Mj
 
 
 
 
-
-
-
-        delta_s_0 = self.declare_variable(name+'delta_s_0',shape=(n-1),val=0)
-        delta_theta_0 = self.declare_variable(name+'delta_theta_0',shape=(3,n-1),val=0)
-        delta_r = self.declare_variable(name+'delta_r',shape=(3,n-1),val=0)
-        delta_theta = self.declare_variable(name+'delta_theta',shape=(3,n-1),val=0)
-        delta_s = self.declare_variable(name+'delta_s',shape=(n-1),val=0)
-        delta_F = self.declare_variable(name+'delta_F',shape=(3,n-1),val=0)
-        delta_M = self.declare_variable(name+'delta_M',shape=(3,n-1),val=0)
-        Fa = self.declare_variable(name+'Fa',shape=(3,n-1),val=0)
-        Ma = self.declare_variable(name+'Ma',shape=(3,n-1),val=0)
-        delta_FP = self.declare_variable(name+'delta_FP',shape=(3,n-1),val=0)
-        delta_MP = self.declare_variable(name+'delta_MP',shape=(3,n-1),val=0)
 
 
         # region strainscsn
