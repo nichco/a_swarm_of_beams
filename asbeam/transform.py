@@ -22,7 +22,6 @@ class CalcNodalT(csdl.Model):
         R_psi = self.create_output(name+'R_psi', shape=(n,3,3),val=0)
 
         T = self.create_output(name+'T',shape=(3,3,n),val=0)
-        Ta = self.create_output(name+'Ta',shape=(3,3,n-1),val=0)
 
         for i in range(0, n):
             a1, a2, a3 = theta[0, i], theta[1, i], theta[2, i]
@@ -52,11 +51,5 @@ class CalcNodalT(csdl.Model):
                 T[:,:,i] = csdl.expand(csdl.matmat(csdl.reshape(R_theta[i,:,:], new_shape=(3,3)), csdl.matmat(csdl.reshape(R_psi[i,:,:], new_shape=(3,3)), csdl.reshape(R_phi[i,:,:], new_shape=(3,3)))), (3,3,1),'ij->ijk')
             elif beam_type == 'fuse':
                 T[:,:,i] = csdl.expand(csdl.matmat(csdl.reshape(R_theta[i,:,:], new_shape=(3,3)), csdl.matmat(csdl.reshape(R_phi[i,:,:], new_shape=(3,3)), csdl.reshape(R_psi[i,:,:], new_shape=(3,3)))), (3,3,1),'ij->ijk')
-
-
-
-        # compute Ta from T
-        for i in range(n-1):
-            Ta[:,:,i] = 0.5*(T[:,:,i+1] + T[:,:,i])
 
 

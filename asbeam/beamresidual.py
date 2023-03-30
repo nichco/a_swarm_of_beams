@@ -2,7 +2,6 @@ import csdl
 import python_csdl_backend
 import numpy as np
 from transform import CalcNodalT
-from curvature import CalcNodalK
 from beamdef import BeamDef
 
 
@@ -18,6 +17,7 @@ class BeamRes(csdl.Model):
         name = options['name']
         free = options['free']
         fixed = options['fixed']
+        beam_type = options['beam_type']
 
 
         # process the joints dictionary
@@ -50,7 +50,6 @@ class BeamRes(csdl.Model):
         # THETA = self.declare_variable('THETA',shape=(3)) # aircraft orientation Euler angles
 
         self.add(BeamDef(options=options), name=name+'BeamDef')
-        self.add(CalcNodalK(options=options), name=name+'CalcNodalK')
         self.add(CalcNodalT(options=options), name=name+'CalcNodalT')
 
         # other beam paramaters
@@ -63,11 +62,30 @@ class BeamRes(csdl.Model):
         theta_0 = self.declare_variable(name+'theta_0',shape=(3,n),val=0)
         r_0 = self.declare_variable(name+'r_0',shape=(3,n),val=0)
         T = self.declare_variable(name+'T',shape=(3,3,n)) # transformation tensor from xyz to csn
-        Ta = self.declare_variable(name+'Ta',shape=(3,3,n-1)) # average transformation tensor from xyz to csn
-        Ka = self.declare_variable(name+'Ka',shape=(3,3,n-1)) # curvature/angle-rate relation tensor
+        #K = self.declare_variable(name+'K',shape=(3,3,n)) # curvature/angle-rate relation tensor
         fp = self.declare_variable(name+'fp',shape=(3,n),val=0)
         mp = self.declare_variable(name+'mp',shape=(3,n),val=0)
-        zero = self.declare_variable('zero',val=0)
+        zero = self.declare_variable(name+'zero',val=0)
+        one = self.declare_variable(name+'one',val=1)
+
+
+        # compute K: the curvature/angle-rate relation tensor
+        K = self.create_output(name+'K',shape=(3,3,n),val=0)
+        for i in range(0, n):
+            if beam_type == 'wing':
+                K[0,0,i] = csdl.expand(csdl.cos(theta[2,i])*csdl.cos(theta[1,i]),(1,1,1),'ij->ijk')
+                K[0,2,i] = csdl.expand(-csdl.sin(theta[1,i]),(1,1,1),'ij->ijk')
+                K[1,0,i] = csdl.expand(-csdl.sin(theta[2,i]),(1,1,1),'ij->ijk')
+                K[1,1,i] = csdl.expand(one,(1,1,1))
+                K[2,0,i] = csdl.expand(csdl.cos(theta[2,i])*csdl.sin(theta[1,i]),(1,1,1),'ij->ijk')
+                K[2,2,i] = csdl.expand(csdl.cos(theta[1,i]),(1,1,1),'ij->ijk')
+            if beam_type == 'fuse':
+                K[0,0,i] = csdl.expand(csdl.cos(theta[1,i]),(1,1,1),'ij->ijk')
+                K[0,2,i] = csdl.expand(-csdl.cos(theta[0,i])*csdl.sin(theta[1,i]),(1,1,1),'ij->ijk')
+                K[1,1,i] = csdl.expand(one,(1,1,1))
+                K[1,2,i] = csdl.expand(csdl.sin(theta[0,i]),(1,1,1),'ij->ijk')
+                K[2,0,i] = csdl.expand(csdl.sin(theta[1,i]),(1,1,1),'ij->ijk')
+                K[2,2,i] = csdl.expand(csdl.cos(theta[0,i])*csdl.cos(theta[1,i]),(1,1,1),'ij->ijk')
 
 
 
@@ -88,6 +106,8 @@ class BeamRes(csdl.Model):
         ma = self.create_output(name+'ma',shape=(3,n-1))
         delta_fp = self.create_output(name+'delta_fp',shape=(3,n-1),val=0)
         delta_mp = self.create_output(name+'delta_mp',shape=(3,n-1),val=0)
+        Ta = self.create_output(name+'Ta',shape=(3,3,n-1),val=0)
+        Ka = self.create_output(name+'Ka',shape=(3,3,n-1),val=0)
 
         for i in range(0,n-1):
             delta_r[:, i] = r[:,i+1] - r[:,i] + 1E-19
@@ -100,8 +120,12 @@ class BeamRes(csdl.Model):
             delta_M[:,i] = M[:,i+1] - M[:,i]
             Fa[:,i] = 0.5*(F[:,i+1] + F[:,i])
             Ma[:,i] = 0.5*(M[:,i+1] + M[:,i])
-            fa[:,i], ma[:,i] = 0.5*(f[:,i+1] + f[:,i]), 0.5*(m[:,i+1] + m[:,i])
-            delta_fp[:,i], delta_mp[:,i] = fp[:,i+1] - fp[:,i], mp[:,i+1] - mp[:,i]
+            fa[:,i] = 0.5*(f[:,i+1] + f[:,i])
+            ma[:,i] = 0.5*(m[:,i+1] + m[:,i])
+            delta_fp[:,i] = fp[:,i+1] - fp[:,i]
+            delta_mp[:,i] = mp[:,i+1] - mp[:,i]
+            Ta[:,:,i] = 0.5*(T[:,:,i+1] + T[:,:,i])
+            Ka[:,:,i] = 0.5*(K[:,:,i+1] + K[:,:,i])
 
 
 
