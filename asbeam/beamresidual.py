@@ -1,7 +1,6 @@
 import csdl
 import python_csdl_backend
 import numpy as np
-from difvec import DifVec
 from transform import CalcNodalT
 from curvature import CalcNodalK
 from beamdef import BeamDef
@@ -38,8 +37,8 @@ class BeamRes(csdl.Model):
         x = self.declare_variable(name+'x',shape=(12,n))
         r = x[0:3,:]
         theta = x[3:6,:]
-        Fi = x[6:9,:]
-        Mi = x[9:12,:]
+        F = x[6:9,:]
+        M = x[9:12,:]
 
 
         # aircraft state variables
@@ -66,8 +65,30 @@ class BeamRes(csdl.Model):
         Ta = self.declare_variable(name+'Ta',shape=(3,3,n-1)) # average transformation tensor from xyz to csn
         Ka = self.declare_variable(name+'Ka',shape=(3,3,n-1)) # curvature/angle-rate relation tensor
 
-        # difference vectors
-        self.add(DifVec(options=options), name=name+'Difvec')
+
+        # compute the difference vectors
+        delta_r = self.create_output(name+'delta_r',shape=(3,n-1))
+        delta_theta = self.create_output(name+'delta_theta',shape=(3,n-1))
+        delta_s = self.create_output(name+'delta_s',shape=(n-1))
+        delta_F = self.create_output(name+'delta_F',shape=(3,n-1))
+        delta_M = self.create_output(name+'delta_M',shape=(3,n-1))
+        Fa = self.create_output(name+'Fa',shape=(3,n-1))
+        Ma = self.create_output(name+'Ma',shape=(3,n-1))
+
+        for i in range(0,n-1):
+            delta_r[:, i] = r[:, i + 1] - r[:, i] + 1E-19
+            delta_s[i] = csdl.reshape(((delta_r[0, i])**2 + (delta_r[1, i])**2 + (delta_r[2, i])**2)**0.5, new_shape=(1))
+            delta_theta[:,i] = theta[:,i+1] - theta[:,i]
+            delta_F[:,i] = F[:,i+1] - F[:,i]
+            delta_M[:,i] = M[:,i+1] - M[:,i]
+            Fa[:,i] = 0.5*(F[:,i+1] + F[:,i])
+            Ma[:,i] = 0.5*(M[:,i+1] + M[:,i])
+
+
+
+
+
+
 
         delta_s_0 = self.declare_variable(name+'delta_s_0',shape=(n-1),val=0)
         delta_theta_0 = self.declare_variable(name+'delta_theta_0',shape=(3,n-1),val=0)
@@ -91,8 +112,8 @@ class BeamRes(csdl.Model):
         for i in range(n):
             # transform Fi and Mi in xyz to csn (ASW p6 eq14);
             T_i = csdl.reshape(T[:,:,i], new_shape=(3,3))
-            M_i = csdl.reshape(Mi[:,i],new_shape=(3))
-            F_i = csdl.reshape(Fi[:,i],new_shape=(3))
+            M_i = csdl.reshape(M[:,i],new_shape=(3))
+            F_i = csdl.reshape(F[:,i],new_shape=(3))
             M_csn[:,i] = csdl.expand(csdl.matvec(T_i, M_i),(3,1),'i->ij')
             F_csn[:,i] = csdl.expand(csdl.matvec(T_i, F_i),(3,1),'i->ij')
 
@@ -215,8 +236,8 @@ class BeamRes(csdl.Model):
         free_force_residual = self.create_output(name+'free_force_residual', shape=(3,2), val=0)
         free_moment_residual = self.create_output(name+'free_moment_residual', shape=(3,2), val=0)
         for i, free_node in enumerate(free):
-            free_force_residual[:,i] = Fi[:,int(free_node)] # nodal force at free node is zero
-            free_moment_residual[:,i] = Mi[:,int(free_node)] # nodal moment at free node is zero
+            free_force_residual[:,i] = F[:,int(free_node)] # nodal force at free node is zero
+            free_moment_residual[:,i] = M[:,int(free_node)] # nodal moment at free node is zero
         
         # endregion
 
