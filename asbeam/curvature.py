@@ -42,36 +42,3 @@ class CalcNodalK(csdl.Model):
         # compute Ka from K
         for i in range(n-1):
             Ka[:,:,i] = 0.5*(K[:,:,i+1] + K[:,:,i])
-
-
-if __name__ == '__main__':
-
-    beams = {}
-
-    # wing beam
-    name = 'wing'
-    beams[name] = {}
-    beams[name]['n'] = 6
-    beams[name]['name'] = name
-    beams[name]['beam_type'] = 'fuse'
-    beams[name]['free'] = np.array([0,5])
-    beams[name]['fixed'] = np.array([2])
-    beams[name]['E'] = 69E9
-    beams[name]['G'] = 1E20
-    beams[name]['rho'] = 2700
-    beams[name]['dir'] = 1
-
-
-    x = np.zeros((12,beams[name]['n']))
-    x[5,:] = np.ones(beams[name]['n'])*-np.pi/2
-
-    sim = python_csdl_backend.Simulator(CalcNodalK(options=beams[name]))
-
-    sim[name+'x'] = x
-
-
-    sim.run()
-
-    print(np.round(sim[name+'K'],2))
-
-    #sim.check_partials(compact_print=True)

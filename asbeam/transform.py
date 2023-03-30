@@ -25,9 +25,7 @@ class CalcNodalT(csdl.Model):
         Ta = self.create_output(name+'Ta',shape=(3,3,n-1),val=0)
 
         for i in range(0, n):
-            a1 = theta[0, i]
-            a2 = theta[1, i]
-            a3 = theta[2, i]
+            a1, a2, a3 = theta[0, i], theta[1, i], theta[2, i]
 
             # rotation tensor for phi (angle a1)
             R_phi[i,0,0] = csdl.expand(one,(1,1,1))
@@ -62,37 +60,3 @@ class CalcNodalT(csdl.Model):
             Ta[:,:,i] = 0.5*(T[:,:,i+1] + T[:,:,i])
 
 
-
-if __name__ == '__main__':
-    beams = {}
-
-    # wing beam
-    name = 'wing'
-    beams[name] = {}
-    beams[name]['n'] = 6
-    beams[name]['name'] = name
-    beams[name]['beam_type'] = 'fuse'
-    beams[name]['free'] = np.array([0,5])
-    beams[name]['fixed'] = np.array([2])
-    beams[name]['E'] = 69E9
-    beams[name]['G'] = 1E20
-    beams[name]['rho'] = 2700
-    beams[name]['dir'] = 1
-
-
-
-    x = np.zeros((12,beams[name]['n']))
-    x[5,:] = np.ones(beams[name]['n'])*-np.pi/2
-
-
-    n = 10
-    sim = python_csdl_backend.Simulator(CalcNodalT(options=beams[name]))
-
-    sim[name+'x'] = x
-
-    sim.run()
-
-
-    print(np.round(sim[name+'T'],2))
-
-    sim.check_partials(compact_print=True)
