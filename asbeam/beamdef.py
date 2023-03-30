@@ -19,17 +19,6 @@ class BeamDef(csdl.Model):
         theta_0 = self.declare_variable(name+'theta_0',shape=(3,n),val=0)
 
 
-
-        # compute delta_s_0
-        delta_s_0 = self.create_output(name+'delta_s_0',shape=(n-1),val=0)
-        delta_theta_0 = self.create_output(name+'delta_theta_0',shape=(3,n-1),val=0)
-        for i in range(n-1):
-            delta_r_i = r_0[:, i + 1] - r_0[:, i] + 1E-19
-            delta_s_0[i] = csdl.reshape((delta_r_i[0,0]**2 + delta_r_i[1,0]**2 + delta_r_i[2,0]**2)**0.5, new_shape=(1))
-            delta_theta_0[:,i] = theta_0[:,i+1] - theta_0[:,i]
-
-        
-
         # compute the initial curvature matrix K_0
         one = self.declare_variable('one',val=1)
         K_0 = self.create_output(name+'K_0',shape=(3,3,n),val=0)
