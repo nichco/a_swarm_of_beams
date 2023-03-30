@@ -67,8 +67,6 @@ class BeamRes(csdl.Model):
         Ka = self.declare_variable(name+'Ka',shape=(3,3,n-1)) # curvature/angle-rate relation tensor
         fp = self.declare_variable(name+'fp',shape=(3,n),val=0)
         mp = self.declare_variable(name+'mp',shape=(3,n),val=0)
-        delta_s_0 = self.declare_variable(name+'delta_s_0',shape=(n-1),val=0)
-        delta_theta_0 = self.declare_variable(name+'delta_theta_0',shape=(3,n-1),val=0)
         zero = self.declare_variable('zero',val=0)
 
 
@@ -79,7 +77,9 @@ class BeamRes(csdl.Model):
         # compute the difference/average vectors
         delta_r = self.create_output(name+'delta_r',shape=(3,n-1))
         delta_theta = self.create_output(name+'delta_theta',shape=(3,n-1))
+        delta_theta_0 = self.create_output(name+'delta_theta_0',shape=(3,n-1),val=0)
         delta_s = self.create_output(name+'delta_s',shape=(n-1))
+        delta_s_0 = self.create_output(name+'delta_s_0',shape=(n-1),val=0)
         delta_F = self.create_output(name+'delta_F',shape=(3,n-1))
         delta_M = self.create_output(name+'delta_M',shape=(3,n-1))
         Fa = self.create_output(name+'Fa',shape=(3,n-1))
@@ -90,9 +90,12 @@ class BeamRes(csdl.Model):
         delta_mp = self.create_output(name+'delta_mp',shape=(3,n-1),val=0)
 
         for i in range(0,n-1):
-            delta_r[:, i] = r[:, i + 1] - r[:, i] + 1E-19
+            delta_r[:, i] = r[:,i+1] - r[:,i] + 1E-19
+            delta_r_0 = r_0[:,i+1] - r_0[:,i] + 1E-19
+            delta_s_0[i] = csdl.reshape((delta_r_0[0,0]**2 + delta_r_0[1,0]**2 + delta_r_0[2,0]**2)**0.5, new_shape=(1))
             delta_s[i] = csdl.reshape(((delta_r[0, i])**2 + (delta_r[1, i])**2 + (delta_r[2, i])**2)**0.5, new_shape=(1))
             delta_theta[:,i] = theta[:,i+1] - theta[:,i]
+            delta_theta_0[:,i] = theta_0[:,i+1] - theta_0[:,i]
             delta_F[:,i] = F[:,i+1] - F[:,i]
             delta_M[:,i] = M[:,i+1] - M[:,i]
             Fa[:,i] = 0.5*(F[:,i+1] + F[:,i])
@@ -103,8 +106,8 @@ class BeamRes(csdl.Model):
 
 
         # compute the point loads
-        delta_Fj = self.create_output(name+'delta_Fj',shape=(3,n-1),val=0)
-        delta_Mj = self.create_output(name+'delta_Mj',shape=(3,n-1),val=0)
+        delta_fj = self.create_output(name+'delta_fj',shape=(3,n-1),val=0)
+        delta_mj = self.create_output(name+'delta_mj',shape=(3,n-1),val=0)
         delta_FP = self.create_output(name+'delta_FP',shape=(3,n-1),val=0)
         delta_MP = self.create_output(name+'delta_MP',shape=(3,n-1),val=0)
         for i in range(n-1):
@@ -112,11 +115,11 @@ class BeamRes(csdl.Model):
                 joint_name = parent_dict[i]
                 jx = self.declare_variable(joint_name+'x',shape=(12,1),val=0)
                 Fj, Mj = jx[6:9,0], jx[9:12,0]
-                delta_Fj[:,i], delta_Mj[:,i] = Fj, Mj # (ASW p27 eq143)
-            else: delta_Fj[:,i], delta_Mj[:,i] = [csdl.expand(zero,(3,1),'i->ij')] * 2
+                delta_fj[:,i], delta_mj[:,i] = Fj, Mj # (ASW p27 eq143)
+            else: delta_fj[:,i], delta_mj[:,i] = [csdl.expand(zero,(3,1),'i->ij')] * 2
         
-        delta_FP[:,:] = delta_fp + delta_Fj
-        delta_MP[:,:] = delta_mp + delta_Mj
+        delta_FP[:,:] = delta_fp + delta_fj
+        delta_MP[:,:] = delta_mp + delta_mj
 
 
 
