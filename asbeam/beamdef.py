@@ -15,7 +15,6 @@ class BeamDef(csdl.Model):
         beam_type = options['beam_type']
 
 
-        r_0 = self.declare_variable(name+'r_0',shape=(3,n),val=0)
         theta_0 = self.declare_variable(name+'theta_0',shape=(3,n),val=0)
 
 
