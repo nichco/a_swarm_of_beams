@@ -353,12 +353,23 @@ class BeamRes(csdl.Model):
         # supports up to two free nodes
         free_force_residual = self.create_output(name+'free_force_residual', shape=(3,2), val=0)
         free_moment_residual = self.create_output(name+'free_moment_residual', shape=(3,2), val=0)
+        #fixed_displacement_residual = self.create_output(name+'fixed_displacement_residual', shape=(3,1), val=0)
+        #fixed_orientation_residual = self.create_output(name+'fixed_orientation_residual', shape=(3,1), val=0)
 
 
 
         for i, free_node in enumerate(free):
             free_force_residual[:,i] = F[:,int(free_node)] # nodal force at free node is zero
             free_moment_residual[:,i] = M[:,int(free_node)] # nodal moment at free node is zero
+        """
+        for free_node in free:
+            free_force_residual[:,0] = F[:,int(free_node)] # nodal force at free node is zero
+            free_moment_residual[:,0] = M[:,int(free_node)] # nodal moment at free node is zero
+
+        for fixed_node in fixed:
+            fixed_displacement_residual[:,0] = r[:,int(fixed_node)] - r_0[:,int(fixed_node)]
+            fixed_orientation_residual[:,0] = theta[:,int(fixed_node)] - theta_0[:,int(fixed_node)]
+        """
         
         # endregion
 
@@ -376,6 +387,8 @@ class BeamRes(csdl.Model):
         res[3:6,n-1] = free_moment_residual[:,0]
         res[6:9,n-1] = free_force_residual[:,1]
         res[9:12,n-1] = free_moment_residual[:,1]
+        #res[6:9,n-1] = fixed_displacement_residual
+        #res[9:12,n-1] = fixed_orientation_residual
         # endregion
         
 

@@ -27,11 +27,11 @@ class Run(csdl.Model):
 beams = {}
 name = 'wing'
 beams[name] = {}
-beams[name]['n'] = 15
+beams[name]['n'] = 11
 beams[name]['name'] = name
 beams[name]['beam_type'] = 'wing'
 beams[name]['free'] = np.array([0,beams[name]['n']-1])
-beams[name]['fixed'] = np.array([8])
+beams[name]['fixed'] = np.array([5])
 beams[name]['E'] = 69E9
 beams[name]['G'] = 1E20
 beams[name]['rho'] = 2700
@@ -48,11 +48,11 @@ f[2,:] = 10000
 sim = python_csdl_backend.Simulator(Run(beams=beams))
 
 sim[name+'h'] = 0.25
-sim[name+'w'] = 1
-sim[name+'t_left'] = 0.05
-sim[name+'t_top'] = 0.05
-sim[name+'t_right'] = 0.05
-sim[name+'t_bot'] = 0.05
+sim[name+'w'] = 0.75
+sim[name+'t_left'] = 0.01
+sim[name+'t_top'] = 0.01
+sim[name+'t_right'] = 0.01
+sim[name+'t_bot'] = 0.01
 
 sim[name+'r_0'] = r_0
 sim[name+'theta_0'] = theta_0
