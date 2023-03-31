@@ -353,6 +353,9 @@ class BeamRes(csdl.Model):
         # supports up to two free nodes
         free_force_residual = self.create_output(name+'free_force_residual', shape=(3,2), val=0)
         free_moment_residual = self.create_output(name+'free_moment_residual', shape=(3,2), val=0)
+
+
+
         for i, free_node in enumerate(free):
             free_force_residual[:,i] = F[:,int(free_node)] # nodal force at free node is zero
             free_moment_residual[:,i] = M[:,int(free_node)] # nodal moment at free node is zero

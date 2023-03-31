@@ -18,7 +18,7 @@ class ImplicitOp(csdl.Model):
         solve_res.declare_state(name+'x', residual=name+'res')
         solve_res.nonlinear_solver = csdl.NewtonSolver(
         solve_subsystems=False,
-        maxiter=200,
+        maxiter=50,
         iprint=False,
         )
         solve_res.linear_solver = csdl.ScipyKrylov()
