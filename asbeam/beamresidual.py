@@ -195,8 +195,10 @@ class BeamRes(csdl.Model):
             Ma[:,i] = 0.5*(M[:,i+1] + M[:,i])
             fa[:,i] = 0.5*(f[:,i+1] + f[:,i])
             ma[:,i] = 0.5*(m[:,i+1] + m[:,i])
-            delta_fp[:,i] = fp[:,i+1] - fp[:,i]
-            delta_mp[:,i] = mp[:,i+1] - mp[:,i]
+
+            delta_fp[:,i] = fp[:,i+1] #- fp[:,i]
+            delta_mp[:,i] = mp[:,i+1] #- mp[:,i]
+
             Ta[:,:,i] = 0.5*(T[:,:,i+1] + T[:,:,i])
             Ka[:,:,i] = 0.5*(K[:,:,i+1] + K[:,:,i])
 
@@ -220,6 +222,8 @@ class BeamRes(csdl.Model):
         
         delta_FP[:,:] = delta_fp + delta_fj
         delta_MP[:,:] = delta_mp + delta_mj
+
+        self.print_var(delta_fp)
 
 
 

@@ -33,29 +33,23 @@ if __name__ == '__main__':
     beams[name]['name'] = name
     beams[name]['beam_type'] = 'wing'
     beams[name]['free'] = np.array([0,beams[name]['n']-1])
-    beams[name]['fixed'] = np.array([15])
+    beams[name]['fixed'] = np.array([14])
     beams[name]['E'] = 69E9
     beams[name]['G'] = 1E20
     beams[name]['rho'] = 2700
     beams[name]['dir'] = 1
 
-    span = 10
+    span = 20
     r_0 = np.zeros((3,beams[name]['n']))
     r_0[1,:] = np.linspace(-span/2,span/2,beams[name]['n'])
     theta_0 = np.zeros((3,beams[name]['n']))
     f = np.zeros((3,beams[name]['n']))
     f[2,:] = 10000
 
-    import time
-    t1 = time.perf_counter()
-    rep = csdl.GraphRepresentation(Run(beams = beams))
-    print('DKDJNFKSJNFD')
-    sim = python_csdl_backend.Simulator(rep)
-    t2 = time.perf_counter()
+    fp = np.zeros((3,beams[name]['n']))
+    fp[2,24] = -10000
 
-    # sim = python_csdl_backend.Simulator(Run(beams=beams))
-
-    print('compile time: ', t2-t1)
+    sim = python_csdl_backend.Simulator(Run(beams=beams))
 
     sim[name+'h'] = 0.25
     sim[name+'w'] = 0.75
@@ -67,6 +61,7 @@ if __name__ == '__main__':
     sim[name+'r_0'] = r_0
     sim[name+'theta_0'] = theta_0
     sim[name+'f'] = f
+    sim[name+'fp'] = fp
 
     sim.run()
 
