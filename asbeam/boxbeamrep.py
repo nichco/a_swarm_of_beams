@@ -126,10 +126,6 @@ class BoxBeamRep(csdl.Model):
             mu[i] = rho * 1 / 3 * (A1 + A2 + ((A1 * A2)**0.5))
         # endregion
 
-        # compute beam mass
-        # mass = csdl.sum(mu*delta_s_0)
-        # self.register_output(name+'mass',mass)
-
         # region E
         E_inv = self.create_output(name+'E_inv',shape=(3,3,n),val=0)
         for i in range(n):

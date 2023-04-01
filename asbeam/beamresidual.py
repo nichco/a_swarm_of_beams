@@ -59,7 +59,9 @@ class BeamRes(csdl.Model):
         mp = self.declare_variable(name+'mp',shape=(3,n),val=0)
         zero = self.declare_variable(name+'zero',val=0)
         one = self.declare_variable(name+'one',val=1)
+        mu = self.declare_variable(name+'mu',shape=(n-1),val=0)
 
+        
 
         # compute T & T_0: the transformation tensor from xyz to csn
         R_phi = self.create_output(name+'R_phi', shape=(n,3,3),val=0)
@@ -198,6 +200,9 @@ class BeamRes(csdl.Model):
             Ta[:,:,i] = 0.5*(T[:,:,i+1] + T[:,:,i])
             Ka[:,:,i] = 0.5*(K[:,:,i+1] + K[:,:,i])
 
+
+        mass = csdl.sum(mu*delta_s_0)
+        self.register_output(name+'mass',mass)
 
 
         # compute the point loads

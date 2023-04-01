@@ -37,9 +37,12 @@ class Group(csdl.Model):
                 'E_inv': (3,3,num_nodes),
                 'D': (3,3,num_nodes),
                 'oneover': (3,3,num_nodes),
-                'f': (3,num_nodes)}
+                'f': (3,num_nodes),
+                'm': (3,num_nodes),
+                'fp': (3,num_nodes),
+                'mp': (3,num_nodes)}
         
-        r_0, theta_0, E_inv, D, oneover, f = [self.declare_variable(var_name, shape=var_shape) for var_name, var_shape in vars.items()]
+        r_0, theta_0, E_inv, D, oneover, f, m, fp, mp = [self.declare_variable(var_name, shape=var_shape) for var_name, var_shape in vars.items()]
 
         i = 0
         for beam_name in beams:
@@ -50,6 +53,9 @@ class Group(csdl.Model):
             self.register_output(beam_name+'D', D[:,:,i:i+n])
             self.register_output(beam_name+'oneover', oneover[:,:,i:i+n])
             self.register_output(beam_name+'f', f[:,i:i+n])
+            self.register_output(beam_name+'m', m[:,i:i+n])
+            self.register_output(beam_name+'fp', fp[:,i:i+n])
+            self.register_output(beam_name+'mp', mp[:,i:i+n])
             i += n
 
 

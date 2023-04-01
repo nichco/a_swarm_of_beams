@@ -33,7 +33,10 @@ class GroupImplicitOp(csdl.Model):
                 'E_inv': (3,3,num_nodes),
                 'D': (3,3,num_nodes),
                 'oneover': (3,3,num_nodes),
-                'f': (3,num_nodes)}
+                'f': (3,num_nodes),
+                'm': (3,num_nodes), # distributed moments
+                'fp': (3,num_nodes), # point loads
+                'mp': (3,num_nodes)} # point moments
         
         var_list = [self.declare_variable(var_name, shape=var_shape, val=0) for var_name, var_shape in vars.items()]
 
