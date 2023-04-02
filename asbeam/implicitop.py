@@ -30,6 +30,7 @@ class ImplicitOp(csdl.Model):
                 'E_inv': (3,3,n), # inverse stiffness matrix
                 'D': (3,3,n),
                 'oneover': (3,3,n),
+                'mu': (n-1),
                 'f': (3,n), # distributed loads
                 'm': (3,n), # distributed moments
                 'fp': (3,n), # point loads

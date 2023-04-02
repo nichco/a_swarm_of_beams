@@ -223,8 +223,6 @@ class BeamRes(csdl.Model):
         delta_FP[:,:] = delta_fp + delta_fj
         delta_MP[:,:] = delta_mp + delta_mj
 
-        self.print_var(delta_fp)
-
 
 
 
