@@ -22,29 +22,31 @@ class AeroSolver(csdl.Model):
 
 class Aero(csdl.Model):
     def initialize(self):
-        self.parameters.declare('n')
+        self.parameters.declare('N')
     def define(self):
-        n = self.parameters['n']
+        N = self.parameters['N']
 
 
-        y = self.declare_variable('y',shape=(n),val=0)
+        y = self.declare_variable('y',shape=(N),val=0)
         tr = self.declare_variable('tr',val=0.6)
         croot = self.declare_variable('croot',val=2)
-        alpha = self.declare_variable('alpha',shape=(n-2),val=np.deg2rad(2))
+        alpha = self.declare_variable('alpha',shape=(N),val=np.deg2rad(2))
         alpha_0 = self.declare_variable('zero_lift_aoa',val=np.deg2rad(-1.5))
         cla = self.declare_variable('cla',val=6.3)
-        b = 2*y[-1]
+        b = self.declare_variable('b',val=10)
 
-        theta = self.create_output('theta',shape=(n-2),val=0)
-        for i in range(1,n-1):
-            theta[i-1] = csdl.arccos(2*(y[i]**2)**0.5/b)
+        theta = self.create_output('theta',shape=(N),val=0)
+        for i in range(N):
+            #print(i)
+            #self.print_var(y[i])
+            theta[i] = csdl.arccos(2*((y[i]**2)**0.5)/b)
         #self.print_var(theta)
         
-        c = self.create_output('c',shape=(n-2),val=0)
-        for i in range(1,n-1):
-            c[i-1] = croot*(1+(tr-1)*csdl.cos(theta[i-1]))
-        #self.print_var(c)
-        
+        c = self.create_output('c',shape=(N),val=0)
+        for i in range(N):
+            c[i] = croot*(1+(tr-1)*csdl.cos(theta[i]))
+        self.print_var(c)
+        """
         mu = c*csdl.expand(cla/(4*b), (n-2))
         
         LHS = mu*(alpha - csdl.expand(alpha_0, (n-2)))
@@ -58,7 +60,7 @@ class Aero(csdl.Model):
                 term2 = 1 + (mu[i-1]*(2*(j) - 1))/csdl.sin(theta[i-1])
                 B[i-1,j-1] = csdl.expand(term1*term2, (1,1))
 
-        for i in range(1,n):
+        #for i in range(1,n):
 
 
         #for i in range(0,N):
@@ -82,14 +84,14 @@ class Aero(csdl.Model):
         iprint=False,)
         solver.linear_solver = csdl.ScipyKrylov()
 
-        A = solver(B,LHS)
-        self.print_var(A)
+        #A = solver(B,LHS)
+        #self.print_var(A)
 
-        s = b*((croot*(tr+1))/2)
-        AR = b**2/s
+        #s = b*((croot*(tr+1))/2)
+        #AR = b**2/s
 
-        cl = np.pi*AR*A[0]
-
+        #cl = np.pi*AR*A[0]
+        """
 
 
 
@@ -97,14 +99,17 @@ class Aero(csdl.Model):
 if __name__ == '__main__':
 
     n = 8 # num nodes
+    N = n - 2
     b = 10 # span
     y = np.zeros((n))
+    y_in = y[1:-1]
     for i in range(n):
         y[i] = (-b/2)*(1-((2*i)/(n-1)))
 
-    print(y)
+    #print(y_in)
 
 
-    sim = python_csdl_backend.Simulator(Aero(n=n))
-    sim['y'] = y
+    sim = python_csdl_backend.Simulator(Aero(N=N))
+    sim['y'] = y_in
+    sim['b'] = b
     sim.run()

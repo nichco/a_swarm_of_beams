@@ -28,13 +28,10 @@ class lifting_line(csdl.Model):
         S = self.declare_variable('wing_area',val=25) # (m^2)
         AR = self.declare_variable('aspect_ratio',val=8)
         TR = self.declare_variable('taper_ratio',val=0.6)
-        alpha_twist = self.declare_variable('alpha_twist',val=0) # (deg)
+        alpha_twist = self.declare_variable('alpha_twist',val=-1) # (deg)
         i_w = self.declare_variable('i_w',val=2) # wing set angle (deg)
-        a_2d = self.declare_variable('lift_slope',val=2*np.pi) # (rad^-1)
+        a_2d = self.declare_variable('lift_slope',val=6.3) # (rad^-1)
         alpha_0 = self.declare_variable('zero_lift_aoa',val=-1.5) # (deg)
-
-        y = self.declare_variable('y',shape=(N),val=np.linspace(0,10,n)) # nodal coordinates
-        chord = self.declare_variable('chord',shape=(N),val=0)
 
         b = (AR*S)**0.5 # wing span (m)
         self.register_output('b',b)
@@ -43,21 +40,17 @@ class lifting_line(csdl.Model):
         theta_1d = self.create_input('theta',val=np.linspace(np.pi/(2*N),np.pi/2,N),shape=(N,)) # angular position of each segment (rad)
         theta = csdl.expand(theta_1d,(N,1),'ij->iajb')
 
-        #theta = self.create_output('theta',shape=(N,1),val=0)
-        #for i in range(N):
-        #    theta[i,0] = csdl.expand(csdl.arccos(y[i]/b), (1,1), 'i->ij')
-
-        self.print_var(theta)
-        
-        z = csdl.expand((b/2),(N,1))*csdl.cos(theta)
+        #self.print_var(theta)
 
         c = csdl.expand(Croot,(N,1)) - csdl.expand(Croot - Croot*TR,(N,1))*csdl.cos(theta)
 
         mu = c*csdl.expand(a_2d,(N,1))/csdl.expand((4.0*b),(N,1))
 
+        #self.print_var(mu)
+
         alpha = self.create_output('seg_alpha',shape=(N,1))
         for i in range(N):
-            alpha[i,0] = csdl.expand(i_w,(1,1))
+            alpha[i,0] = csdl.expand((i_w+alpha_twist) - i*alpha_twist/(N-1),(1,1))
 
         const = self.create_input('const',val=57.3) # convert deg to rad in the following equation
         LHS = mu*(alpha - csdl.expand(alpha_0,(N,1)))/csdl.expand(const,(N,1))
@@ -110,9 +103,7 @@ class lifting_line(csdl.Model):
 
 
 
-n = 20
-#b = 10
-#y = np.linspace(b/n,b,n)
+n = 9
 
 sim = python_csdl_backend.Simulator(lifting_line(num_segments=n))
 sim.run()
