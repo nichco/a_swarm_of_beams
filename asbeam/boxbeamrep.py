@@ -108,6 +108,7 @@ class BoxBeamRep(csdl.Model):
         EIzz = E * Izz
         EIxz = E * Ixz
         GJ = G * J
+        self.register_output(name+'J',J)
         # endregion
 
 
@@ -115,6 +116,7 @@ class BoxBeamRep(csdl.Model):
         GKn = self.create_input(name+'GKn',shape=(n),val=G / 1.2 * np.ones(n))
         GKc = self.create_input(name+'GKc',shape=(n),val=G / 1.2 * np.ones(n))
         EA = E_sect1 * A_sect1 + E_sect2 * A_sect2 + E_sect3 * A_sect3 + E_sect4 * A_sect4
+        self.register_output(name+'EA',EA)
         # endregion
 
         # region mass properties
@@ -127,15 +129,21 @@ class BoxBeamRep(csdl.Model):
         # endregion
 
         # region E
+        E_mat = self.create_output(name+'E',shape=(3,3,n),val=0)
         E_inv = self.create_output(name+'E_inv',shape=(3,3,n),val=0)
         for i in range(n):
+            E_mat[0,0,i] = csdl.expand(EIxx[i], (1,1,1))
+            E_mat[0,2,i] = csdl.expand(EIxz[i], (1,1,1))
+            E_mat[1,1,i] = csdl.expand(GJ[i], (1,1,1))
+            E_mat[2,0,i] = csdl.expand(EIxz[i], (1,1,1))
+            E_mat[2,2,i] = csdl.expand(EIzz[i], (1,1,1))
+
             denom_i = (EIxx[i]*EIzz[i] - EIxz[i]**2)
             E_inv[0,0,i] = csdl.expand(EIzz[i]/denom_i, (1,1,1))
             E_inv[0,2,i] = csdl.expand(-EIxz[i]/denom_i, (1,1,1))
             E_inv[1,1,i] = csdl.expand(1/(GJ[i]), (1,1,1))
             E_inv[2,2,i] = csdl.expand(EIxx[i]/denom_i, (1,1,1))
             E_inv[2,0,i] = csdl.expand(-EIxz[i]/denom_i, (1,1,1))
-
         # endregion
 
         

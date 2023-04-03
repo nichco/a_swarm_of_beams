@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from implicitop import ImplicitOp
 from boxbeamrep import BoxBeamRep
+from stress import Stress
 from modopt.scipy_library import SLSQP
 from modopt.csdl_library import CSDLProblem
 
@@ -25,9 +26,9 @@ class Run(csdl.Model):
         self.create_input(beam_name+'t_bot',shape=(n))
 
 
-        #for beam_name in beams:
         self.add(BoxBeamRep(options=options), name=beam_name+'BoxBeamRep') # get beam properties
         self.add(ImplicitOp(options=options), name=beam_name+'ImplicitOp') # solve the beam
+        self.add(Stress(options=options), name=beam_name+'Stress') # stress recovery
 
         x = self.declare_variable(beam_name+'x',shape=(12,options['n']),val=0)
         r = x[0:3,:]
@@ -38,11 +39,12 @@ class Run(csdl.Model):
         self.print_var(mass)
 
         #self.add_design_variable(beam_name+'h',lower=0.1)
-        self.add_design_variable(beam_name+'t_left',lower=0.001)
-        self.add_design_variable(beam_name+'t_right',lower=0.001)
-        self.add_design_variable(beam_name+'t_top',lower=0.001)
-        self.add_design_variable(beam_name+'t_bot',lower=0.001)
-        self.add_constraint(beam_name+'max_z',upper=0.8)
+        self.add_design_variable(beam_name+'t_left',lower=0.002)
+        self.add_design_variable(beam_name+'t_right',lower=0.002)
+        self.add_design_variable(beam_name+'t_top',lower=0.002)
+        self.add_design_variable(beam_name+'t_bot',lower=0.002)
+        #self.add_constraint(beam_name+'max_z',upper=0.8)
+        self.add_constraint(beam_name+'max_sigma_vm_fos',upper=options['SY'],scaler=1E-8)
         self.add_objective(beam_name+'mass',scaler=1E-3)
 
 
@@ -60,6 +62,7 @@ if __name__ == '__main__':
     beams[name]['fixed'] = np.array([14])
     beams[name]['E'] = 69E9
     beams[name]['G'] = 1E20
+    beams[name]['SY'] = 450E6 # yield stress (MPa)
     beams[name]['rho'] = 2700
     beams[name]['dir'] = 1
 
@@ -118,4 +121,11 @@ if __name__ == '__main__':
     plt.plot(y,t_top)
     plt.plot(y,t_bot)
     plt.legend(['t_left','t_right','t_top','t_bot'])
+    plt.show()
+
+    sigma_vm = sim[name+'sigma_vm']
+    plt.plot(sigma_vm[0,:])
+    plt.plot(sigma_vm[1,:])
+    plt.plot(sigma_vm[2,:])
+    plt.plot(sigma_vm[3,:])
     plt.show()

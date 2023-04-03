@@ -39,4 +39,4 @@ class ImplicitOp(csdl.Model):
         var_list = [self.declare_variable(name+var_name, shape=var_shape, val=0) for var_name, var_shape in vars.items()]
 
 
-        solve_res(*var_list, expose=[name+'mass'])
+        solve_res(*var_list, expose=[name+'mass',name+'Fcsn',name+'Mcsn'])
