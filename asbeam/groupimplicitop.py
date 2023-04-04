@@ -1,6 +1,6 @@
 import csdl
 import numpy as np
-from group import Group
+from asbeam.group import Group
 
 
 

@@ -1,8 +1,8 @@
 import csdl
 import python_csdl_backend
 import numpy as np
-from beamresidual import BeamRes
-from jointresidual import JointRes
+from asbeam.beamresidual import BeamRes
+from asbeam.jointresidual import JointRes
 
 
 class Group(csdl.Model):
