@@ -16,6 +16,15 @@ class Run(csdl.Model):
     def define(self):
         beams = self.parameters['beams']
 
+        
+        for beam_name in beams:
+            if beams[beam_name]['shape'] == 'box':
+                self.add(BoxBeamRep(options=beams[beam_name]), name=beam_name+'BoxBeamRep') # get beam properties for box beams
+            elif beams[beam_name]['shape'] == 'tube':
+                self.add(TubeBeamRep(options=beams[beam_name]), name=beam_name+'TubeBeamRep') # get beam properties tubular beams
+        
+
+
         num_nodes = 0
         for beam_name in beams: num_nodes = num_nodes + beams[beam_name]['n']
 
@@ -37,14 +46,6 @@ class Run(csdl.Model):
             oneover[:,:,i:i+n] = self.declare_variable(beam_name+'oneover',shape=(3,3,n),val=0)
             fa[:,i:i+n] = self.declare_variable(beam_name+'fa',shape=(3,n),val=0)
             i += n
-
-
-        for beam_name in beams:
-            if beams[beam_name]['shape'] == 'box':
-                self.add(BoxBeamRep(options=beams[beam_name]), name=beam_name+'BoxBeamRep') # get beam properties for box beams
-            elif beams[beam_name]['shape'] == 'tube':
-                self.add(TubeBeamRep(options=beams[beam_name]), name=beam_name+'TubeBeamRep') # get beam properties tubular beams
-        
         
         self.add(GroupImplicitOp(beams=beams, joints=joints), name='GroupImplicitOp') # solve the beam-joint system
 
