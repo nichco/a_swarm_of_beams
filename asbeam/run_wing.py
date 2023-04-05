@@ -90,12 +90,12 @@ if __name__ == '__main__':
     sim[name+'f'] = f
     sim[name+'fp'] = fp
 
-    #sim.run()
+    sim.run()
 
-    prob = CSDLProblem(problem_name='run_wing', simulator=sim)
-    optimizer = SLSQP(prob, maxiter=1000, ftol=1E-6)
-    optimizer.solve()
-    optimizer.print_results()
+    #prob = CSDLProblem(problem_name='run_wing', simulator=sim)
+    #optimizer = SLSQP(prob, maxiter=1000, ftol=1E-6)
+    #optimizer.solve()
+    #optimizer.print_results()
 
 
 
