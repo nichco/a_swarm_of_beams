@@ -30,11 +30,6 @@ class Run(csdl.Model):
         self.add(ImplicitOp(options=options), name=beam_name+'ImplicitOp') # solve the beam
         self.add(Stress(options=options), name=beam_name+'Stress') # stress recovery
 
-        x = self.declare_variable(beam_name+'x',shape=(12,options['n']),val=0)
-        r = x[0:3,:]
-        theta = x[3:6,:]
-        self.register_output(beam_name+'max_z',csdl.max(r[2,:]))
-
         mass = self.declare_variable(beam_name+'mass',val=0)
         self.print_var(mass)
 
@@ -43,7 +38,6 @@ class Run(csdl.Model):
         self.add_design_variable(beam_name+'t_right',lower=0.002)
         self.add_design_variable(beam_name+'t_top',lower=0.002)
         self.add_design_variable(beam_name+'t_bot',lower=0.002)
-        #self.add_constraint(beam_name+'max_z',upper=0.8)
         self.add_constraint(beam_name+'max_sigma_vm_fos',upper=options['SY'],scaler=1E-8)
         self.add_objective(beam_name+'mass',scaler=1E-3)
 
@@ -68,14 +62,11 @@ if __name__ == '__main__':
 
 
 
-    span = 20
     n = beams[name]['n']
     r_0 = np.zeros((3,n))
     r_0[1,:] = np.array([-10,-9.5,-9,-8.5,-8,-7.5,-7,-6.5,-6,-5.5,-5,-4.5,-4,-3.5,-3,-2.5,-2,-1.5,-1,-0.5,0,0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10,10])
-    #r_0[1,:] = np.linspace(-span/2,span/2,beams[name]['n'])
     theta_0 = np.zeros((3,beams[name]['n']))
     f = np.zeros((3,beams[name]['n']))
-    #f[2,:] = 0
 
     fp = np.zeros((3,beams[name]['n']))
     fp[2,beams[name]['n']-1] = 5000
@@ -120,6 +111,8 @@ if __name__ == '__main__':
     plt.ylim(-0.25,0.25)
     plt.scatter(0,0,color='k')
     plt.show()
+
+    
     """
     t_left = sim[name+'t_left']
     t_right = sim[name+'t_right']

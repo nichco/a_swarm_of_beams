@@ -1,7 +1,8 @@
 import csdl
 import numpy as np
 from asbeam.group import Group
-
+from asbeam.boxbeamrep import BoxBeamRep
+from asbeam.tubebeamrep import TubeBeamRep
 
 
 
@@ -14,6 +15,43 @@ class GroupImplicitOp(csdl.Model):
         joints = self.parameters['joints']
 
 
+        # get the beam cross-sectional properties at each node:
+        for beam_name in beams:
+            if beams[beam_name]['shape'] == 'box':
+                self.add(BoxBeamRep(options=beams[beam_name]), name=beam_name+'BoxBeamRep') # get beam properties for box beams
+            elif beams[beam_name]['shape'] == 'tube':
+                self.add(TubeBeamRep(options=beams[beam_name]), name=beam_name+'TubeBeamRep') # get beam properties tubular beams
+        
+
+
+        # compute the total number of nodes for the entire beam group:
+        num_nodes = 0
+        for beam_name in beams: num_nodes = num_nodes + beams[beam_name]['n']
+
+
+        # concatenate the cs/nodal variables as inputs to the implicit operation
+        r_0 = self.create_output('r_0',shape=(3,num_nodes))
+        theta_0 = self.create_output('theta_0',shape=(3,num_nodes))
+        E_inv = self.create_output('E_inv',shape=(3,3,num_nodes))
+        D = self.create_output('D',shape=(3,3,num_nodes))
+        oneover = self.create_output('oneover',shape=(3,3,num_nodes))
+        fa = self.create_output('fa',shape=(3,num_nodes))
+
+        i = 0
+        for beam_name in beams:
+            n = beams[beam_name]['n']
+            r_0[:,i:i+n] = self.declare_variable(beam_name+'r_0',shape=(3,n),val=0)
+            theta_0[:,i:i+n] = self.declare_variable(beam_name+'theta_0',shape=(3,n),val=0)
+            E_inv[:,:,i:i+n] = self.declare_variable(beam_name+'E_inv',shape=(3,3,n),val=0)
+            D[:,:,i:i+n] = self.declare_variable(beam_name+'D',shape=(3,3,n),val=0)
+            oneover[:,:,i:i+n] = self.declare_variable(beam_name+'oneover',shape=(3,3,n),val=0)
+            fa[:,i:i+n] = self.declare_variable(beam_name+'fa',shape=(3,n),val=0)
+            i += n
+
+
+
+
+        # define the implicit operation
         solve_res = self.create_implicit_operation(Group(beams=beams,joints=joints))
         solve_res.declare_state('x', residual='res')
         solve_res.nonlinear_solver = csdl.NewtonSolver(
@@ -24,10 +62,9 @@ class GroupImplicitOp(csdl.Model):
         solve_res.linear_solver = csdl.ScipyKrylov()
 
 
-        num_nodes = 0
-        for beam_name in beams: num_nodes = num_nodes + beams[beam_name]['n']
 
 
+        # define the variables to pass to the implicit operation:
         vars = {'r_0': (3,num_nodes),
                 'theta_0': (3,num_nodes),
                 'E_inv': (3,3,num_nodes),
@@ -41,4 +78,7 @@ class GroupImplicitOp(csdl.Model):
         var_list = [self.declare_variable(var_name, shape=var_shape, val=0) for var_name, var_shape in vars.items()]
 
 
+
+
+        # solve the implicit operation
         solve_res(*var_list)

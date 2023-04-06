@@ -1,5 +1,10 @@
 import numpy as np
 
+"""
+a sample inputs file for an entire aircraft structural model
+"""
+
+
 
 # beam definitions
 beams, joints = {}, {}
