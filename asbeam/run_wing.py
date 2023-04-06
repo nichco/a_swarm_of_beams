@@ -100,7 +100,7 @@ if __name__ == '__main__':
     F = 20000
     L = 10
     E = 69E9
-    I = sim[name+'Ixx'][0]
+    I = sim[name+'Izz'][0]
     dmax = F*L**3/(3*E*I)
     print('dmax: ',dmax)
 

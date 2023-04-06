@@ -110,6 +110,7 @@ class BoxBeamRep(csdl.Model):
         GJ = G * J
         self.register_output(name+'J',J)
         self.register_output(name+'Ixx',Ixx)
+        self.register_output(name+'Izz',Izz)
         # endregion
 
 
