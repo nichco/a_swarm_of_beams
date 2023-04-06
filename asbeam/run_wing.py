@@ -55,26 +55,30 @@ if __name__ == '__main__':
     beams = {}
     name = 'wing'
     beams[name] = {}
-    beams[name]['n'] = 59
+    beams[name]['n'] = 43
     beams[name]['name'] = name
     beams[name]['beam_type'] = 'wing'
     beams[name]['free'] = np.array([0,beams[name]['n']-1])
-    beams[name]['fixed'] = np.array([29])
+    beams[name]['fixed'] = np.array([20])
     beams[name]['E'] = 69E9
     beams[name]['G'] = 1E20
     beams[name]['SY'] = 450E6 # yield stress (MPa)
     beams[name]['rho'] = 2700
     beams[name]['dir'] = 1
 
+
+
     span = 20
-    r_0 = np.zeros((3,beams[name]['n']))
-    r_0[1,:] = np.linspace(-span/2,span/2,beams[name]['n'])
+    n = beams[name]['n']
+    r_0 = np.zeros((3,n))
+    r_0[1,:] = np.array([-10,-9.5,-9,-8.5,-8,-7.5,-7,-6.5,-6,-5.5,-5,-4.5,-4,-3.5,-3,-2.5,-2,-1.5,-1,-0.5,0,0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10,10])
+    #r_0[1,:] = np.linspace(-span/2,span/2,beams[name]['n'])
     theta_0 = np.zeros((3,beams[name]['n']))
     f = np.zeros((3,beams[name]['n']))
-    f[2,:] = 20000
+    #f[2,:] = 0
 
     fp = np.zeros((3,beams[name]['n']))
-    fp[2,beams[name]['n']-1] = 20000
+    fp[2,beams[name]['n']-1] = 5000
 
     sim = python_csdl_backend.Simulator(Run(options=beams[name]))
 
@@ -87,7 +91,7 @@ if __name__ == '__main__':
 
     sim[name+'r_0'] = r_0
     sim[name+'theta_0'] = theta_0
-    #sim[name+'f'] = f
+    sim[name+'f'] = f
     sim[name+'fp'] = fp
 
     sim.run()
@@ -97,11 +101,11 @@ if __name__ == '__main__':
     #optimizer.solve()
     #optimizer.print_results()
 
-    F = 20000
+    F = 5000
     L = 10
     E = 69E9
     I = sim[name+'Izz'][0]
-    dmax = F*L**3/(3*E*I)
+    dmax = F*(L**3)/(3*E*I)
     print('dmax: ',dmax)
 
 
