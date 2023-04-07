@@ -7,3 +7,6 @@
 
 
 Based, in part, on https://github.com/darshansarojini/OpenAseMdao and http://web.mit.edu/drela/Public/web/aswing/
+
+
+Install with: pip install -e .

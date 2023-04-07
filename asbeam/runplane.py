@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     sim[name+'r_0'] = wing_r_0
     sim[name+'theta_0'] = wing_theta_0
-    sim[name+'fa'] = wing_fa
+    sim[name+'f'] = wing_fa
     
     
     name = 'fuse'
@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
     sim[name+'r_0'] = fuse_r_0
     sim[name+'theta_0'] = fuse_theta_0
-    sim[name+'fa'] = fuse_fa
+    sim[name+'f'] = fuse_fa
 
 
     name = 'lboom'
@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     sim[name+'r_0'] = lboom_r_0
     sim[name+'theta_0'] = lboom_theta_0
-    sim[name+'fa'] = lboom_fa
+    sim[name+'f'] = lboom_fa
 
 
     name = 'rboom'
@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
     sim[name+'r_0'] = rboom_r_0
     sim[name+'theta_0'] = rboom_theta_0
-    sim[name+'fa'] = rboom_fa
+    sim[name+'f'] = rboom_fa
 
 
     name = 'tail'

@@ -35,7 +35,10 @@ class GroupImplicitOp(csdl.Model):
         E_inv = self.create_output('E_inv',shape=(3,3,num_nodes))
         D = self.create_output('D',shape=(3,3,num_nodes))
         oneover = self.create_output('oneover',shape=(3,3,num_nodes))
-        fa = self.create_output('fa',shape=(3,num_nodes))
+        f = self.create_output('f',shape=(3,num_nodes))
+        m = self.create_output('m',shape=(3,num_nodes))
+        fp = self.create_output('fp',shape=(3,num_nodes))
+        mp = self.create_output('mp',shape=(3,num_nodes))
 
         i = 0
         for beam_name in beams:
@@ -45,7 +48,10 @@ class GroupImplicitOp(csdl.Model):
             E_inv[:,:,i:i+n] = self.declare_variable(beam_name+'E_inv',shape=(3,3,n),val=0)
             D[:,:,i:i+n] = self.declare_variable(beam_name+'D',shape=(3,3,n),val=0)
             oneover[:,:,i:i+n] = self.declare_variable(beam_name+'oneover',shape=(3,3,n),val=0)
-            fa[:,i:i+n] = self.declare_variable(beam_name+'fa',shape=(3,n),val=0)
+            f[:,i:i+n] = self.declare_variable(beam_name+'f',shape=(3,n),val=0)
+            m[:,i:i+n] = self.declare_variable(beam_name+'m',shape=(3,n),val=0)
+            fp[:,i:i+n] = self.declare_variable(beam_name+'fp',shape=(3,n),val=0)
+            mp[:,i:i+n] = self.declare_variable(beam_name+'mp',shape=(3,n),val=0)
             i += n
 
 

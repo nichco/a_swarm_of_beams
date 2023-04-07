@@ -3,6 +3,7 @@ import python_csdl_backend
 import numpy as np
 from asbeam.beamresidual import BeamRes
 from asbeam.core.jointresidual import JointRes
+from asbeam.stress import Stress
 
 
 class Group(csdl.Model):
@@ -76,7 +77,8 @@ class Group(csdl.Model):
 
 
 
-        
+        for beam_name in beams:
+            self.add(Stress(options=beams[beam_name]), name=beam_name+'Stress') # stress recovery
 
 
 
