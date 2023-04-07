@@ -1,7 +1,7 @@
 import csdl
 import python_csdl_backend
 import numpy as np
-from asbeam.core.beamresidual import BeamRes
+from asbeam.beamresidual import BeamRes
 from asbeam.core.jointresidual import JointRes
 
 
