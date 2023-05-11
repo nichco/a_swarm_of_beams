@@ -62,6 +62,7 @@ class Group(csdl.Model):
 
         # get the beam residuals
         i = 0
+        
         for beam_name in beams:
             n = beams[beam_name]['n']
             self.add(BeamRes(options=beams[beam_name], joints=joints), name=beam_name+'BeamRes')
