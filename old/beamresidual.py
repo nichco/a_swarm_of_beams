@@ -6,12 +6,11 @@ import numpy as np
 
 class BeamRes(csdl.Model):
     def initialize(self):
-        self.parameters.declare('beams')
+        self.parameters.declare('options')
         self.parameters.declare('joints',default={})
     def define(self):
-        beams = self.parameters['beams']
+        options = self.parameters['options']
         joints = self.parameters['joints']
-        
         n = options['n']
         name = options['name']
         free = options['free']
