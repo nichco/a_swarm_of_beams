@@ -1,16 +1,7 @@
 setup.py
-asbeam/beamgroup.py
+asbeam/asbeam.py
 asbeam/beamresidual.py
-asbeam/boxbeamrep.py
-asbeam/group.py
-asbeam/groupimplicitop.py
-asbeam/implicitop.py
-asbeam/inputs.py
 asbeam/run.py
-asbeam/run_wing.py
-asbeam/runplane.py
-asbeam/stress.py
-asbeam/tubebeamrep.py
 asbeam.egg-info/PKG-INFO
 asbeam.egg-info/SOURCES.txt
 asbeam.egg-info/dependency_links.txt

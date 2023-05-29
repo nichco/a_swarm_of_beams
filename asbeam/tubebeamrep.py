@@ -6,11 +6,14 @@ import python_csdl_backend
 
 class TubeBeamRep(csdl.Model):
     def initialize(self):
+        self.parameters.declare('name')
         self.parameters.declare('options')
+
     def define(self):
+        name = self.parameters['name']
         options = self.parameters['options']
-        n = options['n']
-        name = options['name']
+
+        n = len(options['nodes'])
         E = options['E']
         G = options['G']
         rho = options['rho']
