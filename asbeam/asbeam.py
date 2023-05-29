@@ -49,8 +49,6 @@ class Asbeam(csdl.Model):
             m[:,i:i+n] = self.declare_variable(beam_name+'m',shape=(3,n),val=0)
             fp[:,i:i+n] = self.declare_variable(beam_name+'fp',shape=(3,n),val=0)
             mp[:,i:i+n] = self.declare_variable(beam_name+'mp',shape=(3,n),val=0)
-
-            # self.print_var(E_inv[:,:,i:i+n])
             i += n
 
 
