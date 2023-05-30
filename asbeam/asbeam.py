@@ -137,7 +137,7 @@ class BeamGroup(csdl.Model):
             i += n
 
 
-        # get the beam residuals
+        # get the beam residuals:
         i = 0
         for beam_name in beams:
             n = len(beams[beam_name]['nodes'])
@@ -146,8 +146,8 @@ class BeamGroup(csdl.Model):
             i += n
 
 
-        # get the joint residuals
+        # get the joint residuals:
         for i, joint_name in enumerate(joints):
-            self.add(JointRes(name=joint_name, beams=beams, joint=joints[joint_name]), name=joint_name+'JointRes')
-            res[:, num_nodes+i] = csdl.expand(self.declare_variable(joint_name+'res', shape=(12)), (12,1), 'i->ij')
+           self.add(JointRes(name=joint_name, beams=beams, joint=joints[joint_name]), name=joint_name+'JointRes')
+           res[:, num_nodes+i] = csdl.expand(self.declare_variable(joint_name+'res', shape=(12)), (12,1), 'i->ij')
 

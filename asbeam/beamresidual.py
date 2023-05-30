@@ -308,7 +308,7 @@ class BeamRes(csdl.Model):
         # force equilibrium residual (ASW p13 eq56)
         force_equilibrium_residual = self.create_output(name+'force_equilibrium_residual', shape=(3,n-1), val=0)
         for i in range(n-1):
-            if i not in child: # if the node is not a child node: (ASW p13 eq56)
+            if i not in child and i not in fixed: # if the node is not a child node: (ASW p13 eq56)
                 delta_F_i = csdl.reshape(delta_F[:,i], new_shape=(3))
                 fa_i = csdl.reshape(fa[:,i], new_shape=(3))
                 delta_s_i = csdl.expand(delta_s[i], (3))
@@ -316,10 +316,10 @@ class BeamRes(csdl.Model):
 
                 force_equilibrium_residual[:,i] = csdl.expand(prec_fe*(delta_F_i + fa_i*delta_s_i + delta_FP_i), (3,1), 'i->ij')
 
-            # elif i in fixed: # if the node is a fixed node apply the fixed constraints instead
-            #     r_i = r[:,i]
-            #     r_0_i = r_0[:,i]
-            #     force_equilibrium_residual[:,i] = r_i - r_0_i
+            elif i in fixed: # if the node is a fixed node apply the fixed constraints instead
+                r_i = r[:,i]
+                r_0_i = r_0[:,i]
+                force_equilibrium_residual[:,i] = r_i - r_0_i
 
             elif i in child:
                 r_j = next((r for c, r in zip(child, r_j_list) if c == i), None)
@@ -336,7 +336,7 @@ class BeamRes(csdl.Model):
         # moment equilibrium residual (ASW p13 eq55)
         moment_equilibrium_residual = self.create_output(name+'moment_equilibrium_residual', shape=(3,n-1), val=0)
         for i in range(n-1):
-            if i not in child:
+            if i not in child and i not in fixed:
                 delta_M_i = csdl.reshape(delta_M[:,i], new_shape=(3))
                 ma_i = csdl.reshape(ma[:,i], new_shape=(3))
                 delta_s_i = csdl.expand(delta_s[i], (3))
@@ -346,10 +346,10 @@ class BeamRes(csdl.Model):
 
                 moment_equilibrium_residual[:,i] = csdl.expand(prec_me*(delta_M_i + ma_i*delta_s_i + delta_MP_i + csdl.cross(delta_r_i, Fa_i, axis=0)), (3,1), 'i->ij')
 
-            # elif i in fixed:
-            #     theta_i = theta[:,i]
-            #     theta_0_i = theta_0[:,i]
-            #     moment_equilibrium_residual[:,i] = theta_i - theta_0_i
+            elif i in fixed:
+                theta_i = theta[:,i]
+                theta_0_i = theta_0[:,i]
+                moment_equilibrium_residual[:,i] = theta_i - theta_0_i
 
             elif i in child:
                 theta_j = next((t for c, t in zip(child, theta_j_list) if c == i), None)
@@ -358,39 +358,42 @@ class BeamRes(csdl.Model):
                 moment_equilibrium_residual[:,i] = theta_i - theta_0_i - theta_j
 
 
+        test_mr = self.create_output(name+'test_mr', shape=(3,len(child)), val=0)
+        ind = 0
+        for i in range(n-1):
+            if i in child:
+                theta_j = next((t for c, t in zip(child, theta_j_list) if c == i), None)
+                theta_i = theta[:,i]
+                theta_0_i = theta_0[:,i]
+                test_mr[:,ind] = theta_i - theta_0_i - theta_j
+                ind += 1
+
+
         # endregion
 
 
         # region bcresidual
-        # supports up to two free nodes
-        free_force_residual = self.create_output(name+'free_force_residual', shape=(3,2), val=0)
-        free_moment_residual = self.create_output(name+'free_moment_residual', shape=(3,2), val=0)
+        free_force_residual = self.create_output(name+'free_force_residual', shape=(3,1), val=0)
+        free_moment_residual = self.create_output(name+'free_moment_residual', shape=(3,1), val=0)
 
         fixed_displacement_residual = self.create_output(name+'fixed_displacement_residual', shape=(3,1), val=0)
         fixed_orientation_residual = self.create_output(name+'fixed_orientation_residual', shape=(3,1), val=0)
 
 
-
-        # for i, free_node in enumerate(free):
-        #     free_force_residual[:,i] = F[:,int(free_node)] # nodal force at free node is zero
-        #     free_moment_residual[:,i] = M[:,int(free_node)] # nodal moment at free node is zero
-        
         for free_node in free:
             free_force_residual[:,0] = F[:,int(free_node)] # nodal force at free node is zero
             free_moment_residual[:,0] = M[:,int(free_node)] # nodal moment at free node is zero
         
-        
         for fixed_node in fixed:
             fixed_displacement_residual[:,0] = r[:,int(fixed_node)] - r_0[:,int(fixed_node)]
             fixed_orientation_residual[:,0] = theta[:,int(fixed_node)] - theta_0[:,int(fixed_node)]
-        
         # endregion
 
 
 
         # region concatenateresidual
         # concatenate residual (12x12 matrix)
-        res = self.create_output(name+'res', shape=(12,n))
+        res = self.create_output(name+'res', shape=(12,n), val=0)
         res[0:3,0:n-1] = strain_displacement_residual
         res[3:6,0:n-1] = moment_curvature_residual
         res[6:9,0:n-1] = force_equilibrium_residual
@@ -405,13 +408,10 @@ class BeamRes(csdl.Model):
         # endregion
 
         if options['child'] == False:
-            res[0:3,n-1] = free_force_residual[:,0]
-            res[3:6,n-1] = free_moment_residual[:,0]
-            res[6:9,n-1] = fixed_displacement_residual
-            res[9:12,n-1] = fixed_orientation_residual
-
-        elif options['child'] == True:
-            pass
+            res[0:3,n-1] = free_force_residual
+            res[3:6,n-1] = free_moment_residual
+            #res[6:9,n-1] = fixed_displacement_residual
+            #res[9:12,n-1] = fixed_orientation_residual
 
         
 

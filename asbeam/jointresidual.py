@@ -107,6 +107,6 @@ class JointRes(csdl.Model):
         row2 = csdl.dot(c1,a2,axis=1) - csdl.dot(a1,c2,axis=1)
         row3 = csdl.dot(a1,b2,axis=1) - csdl.dot(b1,a2,axis=1)
 
-        #res[3,0] = csdl.expand(row1, (1,1), 'i->ij')
-        #res[4,0] = csdl.expand(row2, (1,1), 'i->ij')
-        #res[5,0] = csdl.expand(row3, (1,1), 'i->ij')
+        # res[3,0] = csdl.expand(row1, (1,1), 'i->ij')
+        # res[4,0] = csdl.expand(row2, (1,1), 'i->ij')
+        # res[5,0] = csdl.expand(row3, (1,1), 'i->ij')
