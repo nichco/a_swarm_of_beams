@@ -5,17 +5,19 @@ import numpy as np
 
 class JointRes(csdl.Model):
     def initialize(self):
+        self.parameters.declare('name')
         self.parameters.declare('beams')
         self.parameters.declare('joint')
+
     def define(self):
+        joint_name = self.parameters['name']
         beams = self.parameters['beams']
         joint = self.parameters['joint']
 
         # process the dictionaries
-        joint_name = joint['name']
         parent_name, parent_node = joint['parent_name'], joint['parent_node']
         child_name, child_node = joint['child_name'], joint['child_node']
-        num_parent_nodes, num_child_nodes = beams[parent_name]['n'], beams[child_name]['n']
+        num_parent_nodes, num_child_nodes = len(beams[parent_name]['nodes']), len(beams[child_name]['nodes'])
 
         # create joint residual
         res = self.create_output(joint_name+'res', shape=(12,1), val=0)
