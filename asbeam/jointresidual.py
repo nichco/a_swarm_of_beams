@@ -22,6 +22,7 @@ class JointRes(csdl.Model):
         # create joint residual
         res = self.create_output(joint_name+'res', shape=(12,1), val=0)
 
+        """
         # partition the joint state
         jx = self.declare_variable(joint_name+'x',shape=(12,1),val=0)
         r_j = jx[0:3,0]
@@ -110,3 +111,4 @@ class JointRes(csdl.Model):
         # res[3,0] = csdl.expand(row1, (1,1), 'i->ij')
         # res[4,0] = csdl.expand(row2, (1,1), 'i->ij')
         # res[5,0] = csdl.expand(row3, (1,1), 'i->ij')
+        """

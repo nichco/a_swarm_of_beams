@@ -22,14 +22,15 @@ class BeamRes(csdl.Model):
 
         # process the joints dictionary
         child = []
-        for joint_name in joints:
-            if joints[joint_name]['child_name'] == name: # if the beam has any child nodes
-                child.append(joints[joint_name]['child_node']) # add the child node to the list
+        # for joint_name in joints:
+        #     if joints[joint_name]['child_name'] == name: # if the beam has any child nodes
+        #         child.append(joints[joint_name]['child_node']) # add the child node to the list
 
 
 
-        parent_dict = {joints[joint_name]['parent_node']: joint_name for joint_name in joints if joints[joint_name]['parent_name'] == name}
-        parent = list(parent_dict.keys())
+        # parent_dict = {joints[joint_name]['parent_node']: joint_name for joint_name in joints if joints[joint_name]['parent_name'] == name}
+        # parent = list(parent_dict.keys())
+        parent = []
 
 
 
@@ -214,12 +215,13 @@ class BeamRes(csdl.Model):
         delta_FP = self.create_output(name+'delta_FP',shape=(3,n-1),val=0)
         delta_MP = self.create_output(name+'delta_MP',shape=(3,n-1),val=0)
         for i in range(n-1):
-            if i in parent:
-                joint_name = parent_dict[i]
-                jx = self.declare_variable(joint_name+'x',shape=(12,1),val=0)
-                Fj, Mj = jx[6:9,0], jx[9:12,0]
-                delta_fj[:,i], delta_mj[:,i] = Fj, Mj # (ASW p27 eq143)
-            else: delta_fj[:,i], delta_mj[:,i] = [csdl.expand(zero,(3,1),'i->ij')] * 2
+            # if i in parent:
+            #     joint_name = parent_dict[i]
+            #     jx = self.declare_variable(joint_name+'x',shape=(12,1),val=0)
+            #     Fj, Mj = jx[6:9,0], jx[9:12,0]
+            #     delta_fj[:,i], delta_mj[:,i] = Fj, Mj # (ASW p27 eq143)
+            # else: 
+                delta_fj[:,i], delta_mj[:,i] = [csdl.expand(zero,(3,1),'i->ij')] * 2
         
         delta_FP[:,:] = delta_fp + delta_fj
         delta_MP[:,:] = delta_mp + delta_mj
