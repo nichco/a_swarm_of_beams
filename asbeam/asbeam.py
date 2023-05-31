@@ -94,8 +94,6 @@ class BeamGroup(csdl.Model):
         # declare the state and the residual:
         x = self.declare_variable('x', shape=(12,cols), val=0)
         res = self.create_output('res', shape=(12,cols), val=0)
-        # x = self.declare_variable('x', shape=(12,num_nodes), val=0)
-        # res = self.create_output('res', shape=(12,num_nodes), val=0)
 
         # partition the state
         i = 0
@@ -147,7 +145,7 @@ class BeamGroup(csdl.Model):
 
 
         # get the joint residuals:
-        for i, joint_name in enumerate(joints):
-           self.add(JointRes(name=joint_name, beams=beams, joint=joints[joint_name]), name=joint_name+'JointRes')
-           res[:, num_nodes+i] = csdl.expand(self.declare_variable(joint_name+'res', shape=(12)), (12,1), 'i->ij')
+        #for i, joint_name in enumerate(joints):
+        #   self.add(JointRes(name=joint_name, beams=beams, joint=joints[joint_name]), name=joint_name+'JointRes')
+        #   res[:, num_nodes+i] = csdl.expand(self.declare_variable(joint_name+'res', shape=(12)), (12,1), 'i->ij')
 

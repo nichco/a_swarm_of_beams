@@ -65,13 +65,13 @@ if __name__ == '__main__':
                      'type': 'fuse',
                      'free': [10],
                      'fixed': [0],
-                     'child': True,
+                     'child': False,
                      'parent': False}
     
-    joints['wing_fuse'] = {'parent_name': 'wing',
-                           'parent_node': 6,
-                           'child_name': 'fuse',
-                           'child_node': 0}
+    # joints['wing_fuse'] = {'parent_name': 'wing',
+    #                        'parent_node': 6,
+    #                        'child_name': 'fuse',
+    #                        'child_node': 0}
     
     sim = python_csdl_backend.Simulator(Run(beams=beams, joints=joints))
     sim.run()
