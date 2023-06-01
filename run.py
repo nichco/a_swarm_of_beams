@@ -53,9 +53,7 @@ if __name__ == '__main__':
                      'nodes': list(range(n)),
                      'type': 'wing',
                      'free': [10],
-                     'fixed': [0],
-                     'child': False,
-                     'parent': False}
+                     'fixed': [0],}
     
     beams['fuse'] = {'E': 69E9,
                      'G': 26E9,
@@ -64,14 +62,12 @@ if __name__ == '__main__':
                      'nodes': list(range(n)),
                      'type': 'fuse',
                      'free': [10],
-                     'fixed': [0],
-                     'child': False,
-                     'parent': False}
+                     'fixed': [0],}
     
-    # joints['wing_fuse'] = {'parent_name': 'wing',
-    #                        'parent_node': 6,
-    #                        'child_name': 'fuse',
-    #                        'child_node': 0}
+    joints['wing_fuse'] = {'parent_name': 'wing',
+                           'parent_node': 6,
+                           'child_name': 'fuse',
+                           'child_node': 0}
     
     sim = python_csdl_backend.Simulator(Run(beams=beams, joints=joints))
     sim.run()

@@ -21,23 +21,25 @@ class BeamRes(csdl.Model):
 
 
         # process the joints dictionary
-        child = []
+        # child, r_j_list, theta_j_list = [], [], []
         # for joint_name in joints:
+        #     jx = self.declare_variable(joint_name+'x',shape=(12,1),val=0)
+        #     r_ji, theta_ji = jx[0:3,0], jx[3:6,0]
         #     if joints[joint_name]['child_name'] == name: # if the beam has any child nodes
         #         child.append(joints[joint_name]['child_node']) # add the child node to the list
+        #         r_j_list.append(r_ji)
+        #         theta_j_list.append(theta_ji)
 
 
 
         # parent_dict = {joints[joint_name]['parent_node']: joint_name for joint_name in joints if joints[joint_name]['parent_name'] == name}
         # parent = list(parent_dict.keys())
-        parent = []
 
 
 
         # the 12 beam representation variables
         x = self.declare_variable(name + 'x', shape=(12,n))
         r = x[0:3,:]
-        #self.print_var(r)
         theta = x[3:6,:]
         F = x[6:9,:]
         M = x[9:12,:]
@@ -356,21 +358,11 @@ class BeamRes(csdl.Model):
             #     moment_equilibrium_residual[:,i] = theta_i - theta_0_i - theta_j
 
 
-        # test_mr = self.create_output(name+'test_mr', shape=(3,len(child)), val=0)
-        # ind = 0
-        # for i in range(n-1):
-        #     if i in child:
-        #         theta_j = next((t for c, t in zip(child, theta_j_list) if c == i), None)
-        #         theta_i = theta[:,i]
-        #         theta_0_i = theta_0[:,i]
-        #         test_mr[:,ind] = theta_i - theta_0_i - theta_j
-        #         ind += 1
 
 
         # endregion
 
-
-        # region bcresidual
+        
         free_force_residual = self.create_output(name+'free_force_residual', shape=(3,1), val=0)
         free_moment_residual = self.create_output(name+'free_moment_residual', shape=(3,1), val=0)
 
@@ -385,31 +377,28 @@ class BeamRes(csdl.Model):
         for fixed_node in fixed:
             fixed_displacement_residual[:,0] = r[:,int(fixed_node)] - r_0[:,int(fixed_node)]
             fixed_orientation_residual[:,0] = theta[:,int(fixed_node)] - theta_0[:,int(fixed_node)]
-        # endregion
+        
 
 
-
-        # region concatenateresidual
         # concatenate residual (12x12 matrix)
         res = self.create_output(name+'res', shape=(12,n), val=0)
         res[0:3,0:n-1] = strain_displacement_residual
         res[3:6,0:n-1] = moment_curvature_residual
         res[6:9,0:n-1] = force_equilibrium_residual
         res[9:12,0:n-1] = moment_equilibrium_residual
+        
 
 
+        res[0:3,n-1] = free_force_residual[:,0]
+        res[3:6,n-1] = free_moment_residual[:,0]
+        res[6:9,n-1] = fixed_displacement_residual
+        res[9:12,n-1] = fixed_orientation_residual
 
-        # res[0:3,n-1] = free_force_residual[:,0]
-        # res[3:6,n-1] = free_moment_residual[:,0]
-        # res[6:9,n-1] = fixed_displacement_residual
-        # res[9:12,n-1] = fixed_orientation_residual
-        # endregion
-
-        if options['child'] == False:
-            res[0:3,n-1] = free_force_residual
-            res[3:6,n-1] = free_moment_residual
-            res[6:9,n-1] = fixed_displacement_residual
-            res[9:12,n-1] = fixed_orientation_residual
+        # if options['child'] == False:
+        #     res[0:3,n-1] = free_force_residual
+        #     res[3:6,n-1] = free_moment_residual
+        #     res[6:9,n-1] = fixed_displacement_residual
+        #     res[9:12,n-1] = fixed_orientation_residual
 
         
 
