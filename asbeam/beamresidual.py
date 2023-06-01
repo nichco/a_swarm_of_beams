@@ -374,9 +374,13 @@ class BeamRes(csdl.Model):
             free_force_residual[:,0] = F[:,int(free_node)] # nodal force at free node is zero
             free_moment_residual[:,0] = M[:,int(free_node)] # nodal moment at free node is zero
         
-        for fixed_node in fixed:
-            fixed_displacement_residual[:,0] = r[:,int(fixed_node)] - r_0[:,int(fixed_node)]
-            fixed_orientation_residual[:,0] = theta[:,int(fixed_node)] - theta_0[:,int(fixed_node)]
+        if fixed:
+            for fixed_node in fixed:
+                fixed_displacement_residual[:,0] = r[:,int(fixed_node)] - r_0[:,int(fixed_node)]
+                fixed_orientation_residual[:,0] = theta[:,int(fixed_node)] - theta_0[:,int(fixed_node)]
+        else:
+            fixed_displacement_residual[:,0] = csdl.expand(zero, (3,1), 'i->ij')
+            fixed_orientation_residual[:,0] = csdl.expand(zero, (3,1), 'i->ij')
         
 
 

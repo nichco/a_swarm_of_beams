@@ -150,5 +150,7 @@ class BeamGroup(csdl.Model):
         #    res[:, num_nodes+i] = csdl.expand(self.declare_variable(joint_name+'res', shape=(12)), (12,1), 'i->ij')
 
         for i, joint_name in enumerate(joints):
+            self.add(JointRes(name=joint_name, beams=beams, joint=joints[joint_name]), name=joint_name+'JointRes')
+            jres = csdl.expand(self.declare_variable(joint_name+'res', shape=(12)), (12,1), 'i->ij')
             res[:, num_nodes+i] = 1*x[:,num_nodes+i]
 
