@@ -2,6 +2,7 @@ import csdl
 import numpy as np
 import python_csdl_backend
 import matplotlib.pyplot as plt
+plt.rcParams.update(plt.rcParamsDefault)
 from groupimplicitop import GroupImplicitOp
 from inputs import *
 
